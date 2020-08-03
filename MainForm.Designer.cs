@@ -178,7 +178,7 @@
 			this.webBrowser1.TabIndex = 6;
 			this.webBrowser1.Url = new System.Uri("", System.UriKind.Relative);
 			// 
-			// Form1
+			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -189,10 +189,10 @@
 			this.Controls.Add(this.toolStrip1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 			this.MinimumSize = new System.Drawing.Size(800, 600);
-			this.Name = "Form1";
+			this.Name = "MainForm";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-			this.Text = "Form1";
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+			this.Text = "MainForm";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 			this.contextMenuStrip1.ResumeLayout(false);
 			this.toolStrip1.ResumeLayout(false);
 			this.toolStrip1.PerformLayout();
