@@ -2,12 +2,20 @@ Tasks: Finish FeedsSigma app
 Features:
 + Run in background (minimize to system tray) (found solution)
 + Display feeds content as readable html format (i.e. parsed html string) (found solution)
++ Feed download and notification automation
+- Use of WebClient; NotifyIcon change icon, ...
 + Fetch rss feed:
 - from CNN.com: xlmn (xml namespace, xml version 1.0, deal with CDATA)
 - from StackOverflow.com (custom xml structure; deal with decode html entities to normal string then parse to browser document)
 - from Mangapark.net (xml version 2.0; more friendly than 1.0; really simple)
 --> See if the text node content is a CDATA node? parse straight CDATA content to string
 : find and replace all html entities to its original characters -> form a string.
-+ Feed download and notification automation
-- Use of WebClient; NotifyIcon change icon, ...
+
 + Automatically download at specified time
+
+* 2 standard for RSS: RSS (original) and Atom
+* For comparision: https://en.wikipedia.org/wiki/RSS#RSS_compared_with_Atom
+* image tag's elements:
++ title: image caption
++ link: link some site that this image can be found on
++ url: image's url

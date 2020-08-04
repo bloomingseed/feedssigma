@@ -10,11 +10,44 @@
 	background-color: white;
 	padding: 12px;
 	margin: 0 auto;
-	display: flex;
 }
 
-	#welcome-wrapper .content {
-		padding: 12px;
-		margin: auto;
-		border: 1px solid black;
+#feed-details {
+	padding: 3px;
+}
+
+	#feed-details:hover {
+		box-shadow: 0 0 3px 2px;
 	}
+
+	#feed-details:after {
+		content: "";
+		display: block;
+		border: 1px solid;
+	}
+
+.content span {
+	font-style: italic;
+	font-weight: bold;
+	margin: 0 3px;
+}
+
+#feed-items {
+	list-style-type: decimal;
+	height: 100%;
+}
+
+	#feed-items li {
+		margin: 12px 0;
+		padding: 3px;
+	}
+
+		#feed-items li:hover {
+			box-shadow: 0 0 3px 2px;
+		}
+
+		#feed-items li:after {
+			content: "";
+			display: block;
+			border: 1px solid;
+		}

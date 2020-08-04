@@ -21,8 +21,8 @@ namespace FeedsSigma
 			Uri uri = new Uri(@"file:///" + Directory.GetCurrentDirectory().Replace("\\", "/") + @"/web/_layout.html");
 			//webBrowser1.Navigate("https://www.google.com");
 			webBrowser1.Navigate(uri.AbsoluteUri);
-			webBrowser1.DocumentCompleted += (sender, args) => Task.Run(async ()=> await InjectHtmlContent("web/welcome.html"));
-
+			webBrowser1.DocumentCompleted += (sender, args) => Task.Run(async ()=> await InjectHtmlContent("web\\welcome.html"));
+			
 		}
 
 		private void showToolStripMenuItem_Click(object sender, EventArgs e)
