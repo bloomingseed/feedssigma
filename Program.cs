@@ -17,12 +17,24 @@ namespace FeedsSigma
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			//Application.Run(new MainForm());
-			RssFeed myFeed = null;
-			using (FileStream file = new FileStream("cnn.xml", FileMode.Open))
-				myFeed = new RssFeed(file);
-			//Application.Run(new MainForm());
-			string htmlString = myFeed.GetHtmlString();
+			try
+			{
+				//Config config = new Config();
+				Config.LoadConfigurations();
+				//MainForm mainForm = new MainForm(config);
+				//mainForm.FormClosing += (sender, args) =>
+				//{
+				//	config = ((MainForm)sender).ExportConfigurations();
+				//};
+				//Application.Run(mainForm);
+				Config.SaveConfigurations();
+				//Feed myFeed = new RssFeed(0, File.ReadAllText("cnn.xml"));
+			}
+			catch(Exception err)
+			{
+				MessageBox.Show(err.Message + "\r\n\r\nPlease look for support at the FeedsSigma GitHub page."
+					, "An error has occured", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 	}
 }

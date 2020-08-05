@@ -19,3 +19,8 @@ Features:
 + title: image caption
 + link: link some site that this image can be found on
 + url: image's url
+
+- Store configurations in .xml file
+- Download and store xml in AppData folder
+
+*TODO: fix bug replaced all 't' in "title" -> TiTle (done)

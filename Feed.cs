@@ -1,0 +1,453 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
+using System.Net;
+
+namespace FeedsSigma
+{
+	public abstract class Feed
+	{
+		public int Id { get; protected set; }
+		public string Name { get; set; }
+		public string Standard { get; protected set; }
+		//public string Xml { get; protected set; }
+		public string Link { get; protected set; }
+		public string ImageUrl { get; protected set; }
+		public TimeSpan? UpdatePlan { get; set; }
+		protected XDocument _xdoc { get; set; }
+		public Dictionary<string, string> FeedDetails { get; protected set; }
+		public Dictionary<int, Dictionary<string, string>> Items { get; protected set; }
+		protected Feed(int id, string content)
+		{
+			Id = id;
+			FeedDetails = new Dictionary<string, string>();
+			Items = new Dictionary<int, Dictionary<string, string>>();
+			_xdoc = XDocument.Parse(content);
+			ExtractFeedInfo();
+
+		}
+
+		public FeedGroup Group { get; set; }
+		public string GetHtmlString()
+		{
+			StringBuilder builder = new StringBuilder();
+			XDocument templ = null, detailsTmpl = null, itemTmpl = null;
+			try
+			{
+				templ = XDocument.Load(new FileStream("web\\feedLayout.html", FileMode.Open));
+				detailsTmpl = XDocument.Load(new FileStream("web\\detailsLayout.html", FileMode.Open));
+				itemTmpl = XDocument.Load(new FileStream("web\\itemLayout.html", FileMode.Open));
+
+				XElement feedDetailsE = templ.Root.Element("div").Element("div"),
+						feedItemsE = templ.Root.Element("div").Element("ul");
+
+
+
+				if (ImageUrl != null && Uri.IsWellFormedUriString(ImageUrl, UriKind.Absolute))
+				{
+					using (XmlWriter anchorTmpl = XmlWriter.Create(new StringBuilder()))
+					{
+						anchorTmpl.WriteStartElement("a");
+						anchorTmpl.WriteAttributeString("href", Link);
+						anchorTmpl.WriteStartElement("img");
+						anchorTmpl.WriteAttributeString("src", ImageUrl);
+						anchorTmpl.WriteEndElement();
+						anchorTmpl.WriteEndElement();
+						builder.Append(anchorTmpl.ToString());
+					}
+				}
+
+
+				//create anchor for this.Link
+				detailsTmpl.Root.Element("span").Value = "Link" + ':';
+				//detailsTmpl.Root.Element("p").Value = attr.Value;
+				using (XmlWriter pWriter = detailsTmpl.Root.Element("p").CreateWriter())
+				{
+					pWriter.WriteStartElement("a");
+					pWriter.WriteAttributeString("href", Link);
+					pWriter.WriteString(Link);
+					pWriter.WriteEndElement();
+				}
+				builder.Append(detailsTmpl.ToString());
+
+				foreach (KeyValuePair<string, string> attr in FeedDetails)
+				{
+
+					detailsTmpl.Root.Element("span").Value = attr.Key + ':';
+					if (attr.Key == "Link")
+					{
+						using (XmlWriter pWriter = detailsTmpl.Root.Element("p").CreateWriter())
+						{
+							pWriter.WriteStartElement("a");
+							pWriter.WriteAttributeString("href", attr.Key);
+							pWriter.WriteString(attr.Key);
+							pWriter.WriteEndElement();
+						}
+					}
+					else
+					{
+						detailsTmpl.Root.Element("p").Value = attr.Value;
+					}
+
+					builder.Append(detailsTmpl.ToString());
+				}
+				feedDetailsE.Value = builder.ToString();
+				builder.Clear();
+				StringBuilder attrBuilder = new StringBuilder();
+				foreach (var item in Items)
+				{
+					foreach (KeyValuePair<string, string> attr in item.Value)
+					{
+						//detailsTmpl.Root.Element("span").Value = attr.Key+':';
+						//detailsTmpl.Root.Element("p").Value = attr.Value;
+						//attrBuilder.Append(detailsTmpl.ToString());
+
+						detailsTmpl.Root.Element("span").Value = attr.Key + ':';
+						if (attr.Key == "Link")
+						{
+							using (XmlWriter pWriter = detailsTmpl.Root.Element("p").CreateWriter())
+							{
+								pWriter.WriteStartElement("a");
+								pWriter.WriteAttributeString("href", attr.Key);
+								pWriter.WriteString(attr.Key);
+								pWriter.WriteEndElement();
+							}
+						}
+						else
+						{
+							detailsTmpl.Root.Element("p").Value = attr.Value;
+						}
+
+						attrBuilder.Append(detailsTmpl.ToString());
+
+					}
+					itemTmpl.Root.Value = attrBuilder.ToString();
+					//itemTmpl.
+					attrBuilder.Clear();
+					builder.Append(itemTmpl.ToString());
+				}
+				feedItemsE.Value = builder.ToString();
+				builder.Clear();
+			}
+			catch (Exception err) { throw err; }
+			return Utilities.UnescapeHtmlString(templ.ToString());
+		}
+		protected abstract void ExtractFeedInfo();
+		public static Feed CreateFromUrl(string url, int feedId)
+		{
+			Feed feed = null;
+			try
+			{
+				using (WebClient webClient = new WebClient())
+				{
+					string data = webClient.DownloadString(url);
+					if (Utilities.GetStandard(data) == "rss")
+						feed = new RssFeed(feedId, data);
+					else
+						feed = new AtomFeed(feedId, data);
+				}
+				return feed;
+			}
+			catch (Exception err) { throw err; }
+		}
+		public void Serialize(XmlWriter writer)
+		{
+			writer.WriteStartElement("feed");
+			writer.WriteWhitespace("\r\n" + new string(' ', 15));
+			writer.WriteElementString("id", Id.ToString());
+			writer.WriteWhitespace("\r\n" + new string(' ', 15));
+			writer.WriteElementString("name", Name);
+			writer.WriteWhitespace("\r\n" + new string(' ', 15));
+			writer.WriteElementString("standard", Standard);
+			writer.WriteWhitespace("\r\n" + new string(' ', 15));
+			writer.WriteElementString("link", Link);
+			writer.WriteWhitespace("\r\n" + new string(' ', 15));
+			writer.WriteElementString("imageUrl", ImageUrl != null ? ImageUrl : "");
+			writer.WriteWhitespace("\r\n" + new string(' ', 15));
+			writer.WriteElementString("updatePlan", UpdatePlan.HasValue ? UpdatePlan.Value.ToString() : "");
+			writer.WriteWhitespace("\r\n" + new string(' ', 15));
+			writer.WriteStartElement("xml");
+			string feedPath = Directory.CreateDirectory(Config.AppPath + $"\\{Config.FeedGroups.Find(group=>group.Feeds.Contains(this)).GetFolderName()}").FullName;
+			feedPath += $"\\{this.GetFileName()}.xml";
+			using (FileStream file = new FileStream(feedPath, FileMode.Create))
+				_xdoc.Save(file);
+			writer.WriteString(feedPath);
+			writer.WriteEndElement();
+			writer.WriteWhitespace("\r\n" + new string(' ', 12));
+			writer.WriteEndElement();
+
+			//output.Write(writer.ToString());
+		}
+		public string GetFileName() { return $"Feed{Id}"; }
+	}
+	public class FeedGroup
+	{
+		public int Id { get; protected set; }
+		public string Name { get; set; }
+		//public int Weight { get; set; }
+		public List<Feed> Feeds { get; set; }
+
+		public FeedGroup(int id) { Id = id; }
+		public void Serialize(XmlWriter writer)
+		{
+			writer.WriteStartElement("group");
+			writer.WriteWhitespace("\r\n" + new string(' ', 9));
+			writer.WriteElementString("id", Id.ToString());
+			writer.WriteWhitespace("\r\n" + new string(' ', 9));
+			writer.WriteElementString("name", Name);
+			writer.WriteWhitespace("\r\n" + new string(' ', 9));
+			//writer.WriteStartElement("weight");
+			//writer.WriteString(Weight.ToString());
+			//writer.WriteEndElement();
+			writer.WriteStartElement("feeds");
+			foreach (Feed feed in Feeds)
+			{
+				writer.WriteWhitespace("\r\n" + new string(' ', 12));
+				feed.Serialize(writer);
+				//writer.WriteString(feedWriter.GetStringBuilder().ToString());
+			}
+			writer.WriteWhitespace("\r\n" + new string(' ', 9));
+			writer.WriteEndElement();
+			writer.WriteWhitespace("\r\n" + new string(' ', 6));
+			writer.WriteEndElement();
+
+			//	output.Write(writer.ToString());
+			//}
+		}
+		public string GetFolderName() { return $"Group{Id}"; }
+	}
+
+	public class RssFeed : Feed
+	{
+		public RssFeed(int id, string content) : base(id, content)
+		{
+		}
+		protected override void ExtractFeedInfo()
+		{
+
+			XElement channel = _xdoc.Root.Element("channel");
+			try
+			{
+				FeedDetails.Add("Title", channel.Element("title").Value);
+				//Link = channel.Element("link").Value;
+				FeedDetails.Add("Link", channel.Element("link").Value);
+			}
+			catch (Exception err) { throw err; }
+			//init when it's hot
+			Standard = "rss";
+			Name = FeedDetails["Title"];
+			Link = FeedDetails["Link"];
+
+			XElement[] xes = new XElement[]
+			{
+				//channel.Element("author"),
+				channel.Element("copyright"),
+				channel.Element("description"),
+				channel.Element("generator"),
+				//channel.Element("image"),
+				channel.Element("lastBuildDate"),
+			};
+			//conditional assignment to feed properties
+			XElement authorElement = channel.Element("author"),
+				imageElement = channel.Element("image");
+			if (authorElement != null)
+			{
+				if (authorElement.HasElements)
+					FeedDetails.Add("Author", authorElement.Element("name").Value);
+				else FeedDetails.Add("Author", authorElement.Value);
+			}
+			if (imageElement != null)
+			{
+
+				ImageUrl = imageElement.Element("url").Value;
+
+			}
+			foreach (var el in xes)
+			{
+				if (el != null)
+				{
+					string val = el.Value;
+					if (el.Attribute("type") != null && el.Attribute("type").Value == "html")
+						val = Utilities.UnescapeHtmlString(val);
+					FeedDetails.Add(
+						char.ToUpper(el.Name.LocalName.ElementAt(0)) + el.Name.LocalName.Substring(1)
+						, val
+						);
+				}
+			}
+			//init feed items
+			var items = from item in channel.Elements("item")
+						select item;
+
+			foreach (var item in items)
+			{
+				xes = new XElement[]
+				{
+					item.Element("title"),
+					item.Element("link"),
+					item.Element("description"),
+					item.Element("pubDate"),
+				};
+				var categories = item.Elements("category");
+				authorElement = channel.Element("author");
+				Dictionary<string, string> content = new Dictionary<string, string>();
+				foreach (var el in xes)
+				{
+					if (el != null)
+					{
+						string val = el.Value;
+						if (el.Attribute("type") != null && el.Attribute("type").Value == "html")
+							val = Utilities.UnescapeHtmlString(val);
+						content.Add(
+							char.ToUpper(el.Name.LocalName.ElementAt(0)) + el.Name.LocalName.Substring(1)
+							, val
+							);
+					}
+				}
+				if (authorElement != null)
+				{
+					if (authorElement.HasElements)
+						content.Add("Author", authorElement.Element("name").Value);
+					else FeedDetails.Add("Author", authorElement.Value);
+				}
+				if (categories.Count() > 0)
+				{
+					content.Add(
+							"Categories"
+							, String.Join("; ", (from term in categories select term.Attribute("term").Value).ToArray())
+							);
+				}
+				Items.Add(Items.Count + 1, content);
+			}
+		}
+	}
+
+	public class AtomFeed : Feed
+	{
+
+		public AtomFeed(int id, string content) : base(id, content)
+		{
+		}
+		protected override void ExtractFeedInfo()
+		{
+
+			XElement feed = _xdoc.Root;
+			XNamespace xmlns = feed.Attribute("xmlns").Value;
+
+			try
+			{
+				FeedDetails.Add("Title", feed.Element(XName.Get("title", xmlns.NamespaceName)).Value);
+				//Link = feed.Element("link").Value;
+				FeedDetails.Add("Link",
+					(from linkElement in feed.Elements(XName.Get("link", xmlns.NamespaceName))
+					 where linkElement.Attribute("rel").Value == "self"
+					 select linkElement.Attribute("href").Value).First()
+					);
+			}
+			catch (Exception err) { throw err; }
+			//init when it's hot
+			Standard = "atom";
+			Name = FeedDetails["Title"];
+			Link = FeedDetails["Link"];
+
+			XElement[] xes = new XElement[]
+			{
+				//feed.Element("author"),
+				feed.Element(XName.Get("rights", xmlns.NamespaceName)),
+				feed.Element(XName.Get("subtitle", xmlns.NamespaceName)),
+				feed.Element(XName.Get("generator", xmlns.NamespaceName)),
+				feed.Element(XName.Get("id", xmlns.NamespaceName)),
+				feed.Element(XName.Get("updated", xmlns.NamespaceName)),
+			};
+			//conditional assignment to feed properties
+			XElement authorElement = feed.Element(XName.Get("author", xmlns.NamespaceName)),
+				logoElement = feed.Element(XName.Get("logo", xmlns.NamespaceName));
+
+			if (authorElement != null)
+			{
+				if (authorElement.HasElements)
+					FeedDetails.Add("Author", authorElement.Element(XName.Get("name", xmlns.NamespaceName)).Value);
+				else FeedDetails.Add("Author", authorElement.Value);
+			}
+			if (logoElement != null)
+			{
+
+				ImageUrl = logoElement.Element(XName.Get("url", xmlns.NamespaceName)).Value;
+
+			}
+			foreach (var el in xes)
+			{
+				if (el != null)
+				{
+					string val = el.Value;
+					if (el.Attribute("type") != null && el.Attribute("type").Value == "html")
+						val = Utilities.UnescapeHtmlString(val);
+					FeedDetails.Add(
+						char.ToUpper(el.Name.LocalName.ElementAt(0)) + el.Name.LocalName.Substring(1)
+						, val
+						);
+				}
+			}
+			//
+			//init feed items
+			var items = from item in feed.Elements(XName.Get("entry", xmlns.NamespaceName))
+						select item;
+
+			foreach (var item in items)
+			{
+				xes = new XElement[]
+				{
+					item.Element(XName.Get("title", xmlns.NamespaceName)),
+					item.Element(XName.Get("sumarry", xmlns.NamespaceName)),
+					item.Element(XName.Get("content", xmlns.NamespaceName)),
+					item.Element(XName.Get("updated", xmlns.NamespaceName)),
+				};
+				var categories = item.Elements(XName.Get("category", xmlns.NamespaceName));
+				authorElement = feed.Element(XName.Get("author", xmlns.NamespaceName));
+				XElement linkElm = (from linkE in feed.Elements(XName.Get("link", xmlns.NamespaceName))
+									where linkE.Attribute("rel").Value == "alternate"
+									select linkE).FirstOrDefault();
+				Dictionary<string, string> content = new Dictionary<string, string>();
+				foreach (var el in xes)
+				{
+					if (el != null)
+					{
+						string val = el.Value;
+						if (el.Attribute("type") != null && el.Attribute("type").Value == "html")
+							val = Utilities.UnescapeHtmlString(val);
+						content.Add(
+							char.ToUpper(el.Name.LocalName.ElementAt(0)) + el.Name.LocalName.Substring(1)
+							, val
+							);
+					}
+				}
+				//
+				// manually add some values
+				if (authorElement != null)
+				{
+					if (authorElement.HasElements)
+						content.Add("Author", authorElement.Element(XName.Get("name", xmlns.NamespaceName)).Value);
+					else FeedDetails.Add("Author", authorElement.Value);
+				}
+				if (categories.Count() > 0)
+				{
+					content.Add(
+							"Categories"
+							, String.Join("; ", (from term in categories select term.Attribute("term").Value).ToArray())
+							);
+				}
+				if (linkElm != null)
+				{
+					content.Add("Link", linkElm.Attribute("href").Value);
+				}
+				Items.Add(Items.Count, content);
+			}
+		}
+	}
+}

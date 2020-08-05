@@ -37,12 +37,12 @@
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
-			this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
 			this.label1 = new System.Windows.Forms.Label();
 			this.listView1 = new System.Windows.Forms.ListView();
 			this.webBrowser1 = new System.Windows.Forms.WebBrowser();
+			this.toolStripButton6 = new System.Windows.Forms.ToolStripButton();
 			this.contextMenuStrip1.SuspendLayout();
 			this.toolStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -86,7 +86,7 @@
 			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButton3,
             this.toolStripButton2,
-            this.toolStripButton5,
+            this.toolStripButton6,
             this.toolStripButton4,
             this.toolStripButton1});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 546);
@@ -100,27 +100,20 @@
 			this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
 			this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButton3.Name = "toolStripButton3";
-			this.toolStripButton3.Size = new System.Drawing.Size(98, 51);
-			this.toolStripButton3.Text = "toolStripButton1";
+			this.toolStripButton3.Size = new System.Drawing.Size(61, 51);
+			this.toolStripButton3.Text = "Add Feed";
 			this.toolStripButton3.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+			this.toolStripButton3.Click += new System.EventHandler(this.toolStripButton3_Click);
 			// 
 			// toolStripButton2
 			// 
 			this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton2.Image")));
 			this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButton2.Name = "toolStripButton2";
-			this.toolStripButton2.Size = new System.Drawing.Size(98, 51);
-			this.toolStripButton2.Text = "toolStripButton1";
+			this.toolStripButton2.Size = new System.Drawing.Size(72, 51);
+			this.toolStripButton2.Text = "Delete Feed";
 			this.toolStripButton2.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-			// 
-			// toolStripButton5
-			// 
-			this.toolStripButton5.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton5.Image")));
-			this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton5.Name = "toolStripButton5";
-			this.toolStripButton5.Size = new System.Drawing.Size(98, 51);
-			this.toolStripButton5.Text = "toolStripButton1";
-			this.toolStripButton5.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+			this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
 			// 
 			// toolStripButton4
 			// 
@@ -151,7 +144,7 @@
 			this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.label1.Location = new System.Drawing.Point(0, 0);
 			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(800, 33);
+			this.label1.Size = new System.Drawing.Size(800, 46);
 			this.label1.TabIndex = 4;
 			this.label1.Text = "Feeds Sigma";
 			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -162,21 +155,30 @@
 			// 
 			this.listView1.Dock = System.Windows.Forms.DockStyle.Left;
 			this.listView1.HideSelection = false;
-			this.listView1.Location = new System.Drawing.Point(0, 33);
+			this.listView1.Location = new System.Drawing.Point(0, 46);
 			this.listView1.Name = "listView1";
-			this.listView1.Size = new System.Drawing.Size(121, 513);
+			this.listView1.Size = new System.Drawing.Size(133, 500);
 			this.listView1.TabIndex = 5;
 			this.listView1.UseCompatibleStateImageBehavior = false;
 			// 
 			// webBrowser1
 			// 
 			this.webBrowser1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.webBrowser1.Location = new System.Drawing.Point(121, 33);
+			this.webBrowser1.Location = new System.Drawing.Point(133, 46);
 			this.webBrowser1.MinimumSize = new System.Drawing.Size(20, 20);
 			this.webBrowser1.Name = "webBrowser1";
-			this.webBrowser1.Size = new System.Drawing.Size(679, 513);
+			this.webBrowser1.Size = new System.Drawing.Size(667, 500);
 			this.webBrowser1.TabIndex = 6;
 			this.webBrowser1.Url = new System.Uri("", System.UriKind.Relative);
+			// 
+			// toolStripButton6
+			// 
+			this.toolStripButton6.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton6.Image")));
+			this.toolStripButton6.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButton6.Name = "toolStripButton6";
+			this.toolStripButton6.Size = new System.Drawing.Size(87, 51);
+			this.toolStripButton6.Text = "Manage Feeds";
+			this.toolStripButton6.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
 			// 
 			// MainForm
 			// 
@@ -192,6 +194,7 @@
 			this.Name = "MainForm";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "MainForm";
+			this.Load += MainForm_Load;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 			this.contextMenuStrip1.ResumeLayout(false);
 			this.toolStrip1.ResumeLayout(false);
@@ -200,6 +203,7 @@
 			this.PerformLayout();
 
 		}
+
 
 		#endregion
 
@@ -212,10 +216,10 @@
 		private System.Windows.Forms.ToolStripButton toolStripButton2;
 		private System.Windows.Forms.ToolStripButton toolStripButton1;
 		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.ToolStripButton toolStripButton5;
 		private System.Windows.Forms.ToolStripButton toolStripButton4;
 		private System.Windows.Forms.ListView listView1;
 		private System.Windows.Forms.WebBrowser webBrowser1;
+		private System.Windows.Forms.ToolStripButton toolStripButton6;
 	}
 }
 
