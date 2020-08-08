@@ -18,6 +18,7 @@ namespace FeedsSigma
 		public static int LastFeedId { get; set; }
 		public static int LastGroupId { get; set; }
 		public static List<FeedGroup> FeedGroups { get; set; }
+
 		public static void SaveConfigurations()
 		{
 			//string AppPath = Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\FeedsSigma").FullName;
@@ -75,7 +76,7 @@ namespace FeedsSigma
 					//feeds path: ~\AppData\Local\FeedsSigma\feeds\{group id}\{feed id}.xml
 					devFeed = Feed.CreateFromUrl("https://github.com/bloomingseed/novelssigma/commits/master.atom"
 						, ++LastFeedId);
-					myFeeds.Feeds = new List<Feed>();
+					//myFeeds.Feeds = new FeedList();
 					myFeeds.Feeds.Add(devFeed);
 					FeedGroups.Add(myFeeds);
 				}
@@ -89,19 +90,24 @@ namespace FeedsSigma
 						FeedGroup feedGroup = new FeedGroup(LastGroupId);
 						feedGroup.Name = group.Element("name").Value;
 						//feedGroup.Weight = int.Parse(group.Element("weight").Value);
-						feedGroup.Feeds = new List<Feed>();
-						foreach(XElement feedElement in group.Descendants("feed"))
+						feedGroup.Feeds = new FeedList();
+						foreach (XElement feedElement in group.Descendants("feed"))
 						{
 							LastFeedId = int.Parse(feedElement.Element("id").Value);
 							Feed feed = null;
+							string checkedTime = feedElement.Element("lastChecked").Value;
 							if (feedElement.Element("standard").Value == "rss")
 								//feed = new RssFeed(LastFeedId, feedElement.ToString());
-								feed = new RssFeed(LastFeedId, File.ReadAllText(feedElement.Element("xml").Value));
+								feed = new RssFeed(LastFeedId, File.ReadAllText(feedElement.Element("xml").Value), checkedTime);
 							else
-								feed = new AtomFeed(LastFeedId, File.ReadAllText(feedElement.Element("xml").Value));
-							if (!string.IsNullOrEmpty(feedElement.Element("updatePlan").Value))
-								feed.UpdatePlan = DateTime.Parse(feedElement.Element("updatePlan").Value).TimeOfDay;
-
+								feed = new AtomFeed(LastFeedId, File.ReadAllText(feedElement.Element("xml").Value), checkedTime);
+							XElement updatePlanELement = feedElement.Element("updatePlan");
+							if (updatePlanELement.HasElements)
+							{
+								TimeSpan time = TimeSpan.Parse((updatePlanELement.Element("time").Value));
+								int freq = int.Parse(updatePlanELement.Element("frequency").Value);
+								feed.UpdatePlan = new Tuple<TimeSpan, int>(time,freq);
+							}
 							feedGroup.Feeds.Add(feed);
 						}
 						FeedGroups.Add(feedGroup);

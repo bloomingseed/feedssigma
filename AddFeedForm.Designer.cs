@@ -106,7 +106,7 @@
 			// 
 			this.label3.AutoSize = true;
 			this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label3.Location = new System.Drawing.Point(319, 58);
+			this.label3.Location = new System.Drawing.Point(344, 58);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(52, 17);
 			this.label3.TabIndex = 6;
@@ -179,6 +179,8 @@
 			this.Controls.Add(this.label1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.Name = "AddFeedForm";
+			this.ShowIcon = false;
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Add New Feed";
 			this.ResumeLayout(false);
 			this.PerformLayout();

@@ -19,13 +19,16 @@ namespace FeedsSigma
 		//public string Xml { get; protected set; }
 		public string Link { get; protected set; }
 		public string ImageUrl { get; protected set; }
-		public TimeSpan? UpdatePlan { get; set; }
+		public Tuple<TimeSpan,int> UpdatePlan { get; set; }
+		//public string LastChecked { get; protected set; }
+		public DateTime LastChecked { get; protected set; }
 		protected XDocument _xdoc { get; set; }
 		public Dictionary<string, string> FeedDetails { get; protected set; }
 		public Dictionary<int, Dictionary<string, string>> Items { get; protected set; }
-		protected Feed(int id, string content)
+		protected Feed(int id, string content, string checkedTime = null)
 		{
 			Id = id;
+			LastChecked = checkedTime != null ? DateTime.Parse(checkedTime) : DateTime.Now;
 			FeedDetails = new Dictionary<string, string>();
 			Items = new Dictionary<int, Dictionary<string, string>>();
 			_xdoc = XDocument.Parse(content);
@@ -34,15 +37,17 @@ namespace FeedsSigma
 		}
 
 		public FeedGroup Group { get; set; }
+
 		public string GetHtmlString()
 		{
 			StringBuilder builder = new StringBuilder();
 			XDocument templ = null, detailsTmpl = null, itemTmpl = null;
 			try
 			{
-				templ = XDocument.Load(new FileStream("web\\feedLayout.html", FileMode.Open));
-				detailsTmpl = XDocument.Load(new FileStream("web\\detailsLayout.html", FileMode.Open));
-				itemTmpl = XDocument.Load(new FileStream("web\\itemLayout.html", FileMode.Open));
+				//templ = XDocument.Load(new FileStream("web\\feedLayout.html", FileMode.Open));
+				templ = XDocument.Parse(File.ReadAllText("web\\feedLayout.html"));
+				detailsTmpl = XDocument.Parse(File.ReadAllText("web\\detailsLayout.html"));
+				itemTmpl = XDocument.Parse(File.ReadAllText("web\\itemLayout.html"));
 
 				XElement feedDetailsE = templ.Root.Element("div").Element("div"),
 						feedItemsE = templ.Root.Element("div").Element("ul");
@@ -64,17 +69,17 @@ namespace FeedsSigma
 				}
 
 
-				//create anchor for this.Link
-				detailsTmpl.Root.Element("span").Value = "Link" + ':';
-				//detailsTmpl.Root.Element("p").Value = attr.Value;
-				using (XmlWriter pWriter = detailsTmpl.Root.Element("p").CreateWriter())
-				{
-					pWriter.WriteStartElement("a");
-					pWriter.WriteAttributeString("href", Link);
-					pWriter.WriteString(Link);
-					pWriter.WriteEndElement();
-				}
-				builder.Append(detailsTmpl.ToString());
+				////create anchor for this.Link
+				//detailsTmpl.Root.Element("span").Value = "Link" + ':';
+				//detailsTmpl.Root.Element("p").Value = "";
+				//using (XmlWriter pWriter = detailsTmpl.Root.Element("p").CreateWriter())
+				//{
+				//	pWriter.WriteStartElement("a");
+				//	pWriter.WriteAttributeString("href", Link);
+				//	pWriter.WriteString(Link);
+				//	pWriter.WriteEndElement();
+				//}
+				//builder.Append(detailsTmpl.ToString());
 
 				foreach (KeyValuePair<string, string> attr in FeedDetails)
 				{
@@ -82,11 +87,12 @@ namespace FeedsSigma
 					detailsTmpl.Root.Element("span").Value = attr.Key + ':';
 					if (attr.Key == "Link")
 					{
+						detailsTmpl.Root.Element("p").Value = "";
 						using (XmlWriter pWriter = detailsTmpl.Root.Element("p").CreateWriter())
 						{
 							pWriter.WriteStartElement("a");
-							pWriter.WriteAttributeString("href", attr.Key);
-							pWriter.WriteString(attr.Key);
+							pWriter.WriteAttributeString("href", attr.Value);
+							pWriter.WriteString(attr.Value);
 							pWriter.WriteEndElement();
 						}
 					}
@@ -97,9 +103,10 @@ namespace FeedsSigma
 
 					builder.Append(detailsTmpl.ToString());
 				}
-				feedDetailsE.Value = builder.ToString();
+				feedDetailsE.Value = "<h2>Feed details:</h2>"+builder.ToString()+"<hr /><h2>Articles:</h2>";
 				builder.Clear();
 				StringBuilder attrBuilder = new StringBuilder();
+				// Generate <li>s
 				foreach (var item in Items)
 				{
 					foreach (KeyValuePair<string, string> attr in item.Value)
@@ -111,11 +118,12 @@ namespace FeedsSigma
 						detailsTmpl.Root.Element("span").Value = attr.Key + ':';
 						if (attr.Key == "Link")
 						{
+							detailsTmpl.Root.Element("p").Value = "";
 							using (XmlWriter pWriter = detailsTmpl.Root.Element("p").CreateWriter())
 							{
 								pWriter.WriteStartElement("a");
-								pWriter.WriteAttributeString("href", attr.Key);
-								pWriter.WriteString(attr.Key);
+								pWriter.WriteAttributeString("href", attr.Value);
+								pWriter.WriteString(attr.Value);
 								pWriter.WriteEndElement();
 							}
 						}
@@ -124,19 +132,21 @@ namespace FeedsSigma
 							detailsTmpl.Root.Element("p").Value = attr.Value;
 						}
 
-						attrBuilder.Append(detailsTmpl.ToString());
+						attrBuilder.Append(WebUtility.HtmlDecode(detailsTmpl.ToString()));
 
 					}
-					itemTmpl.Root.Value = attrBuilder.ToString();
+					itemTmpl.Root.Value = WebUtility.HtmlDecode(attrBuilder.ToString());
 					//itemTmpl.
 					attrBuilder.Clear();
 					builder.Append(itemTmpl.ToString());
+					builder.Append("<hr />");
 				}
-				feedItemsE.Value = builder.ToString();
+				feedItemsE.Value = WebUtility.HtmlDecode(builder.ToString());
 				builder.Clear();
 			}
 			catch (Exception err) { throw err; }
-			return Utilities.UnescapeHtmlString(templ.ToString());
+			//return Utilities.UnescapeHtmlString(templ.ToString());
+			return WebUtility.HtmlDecode(templ.ToString());
 		}
 		protected abstract void ExtractFeedInfo();
 		public static Feed CreateFromUrl(string url, int feedId)
@@ -170,7 +180,16 @@ namespace FeedsSigma
 			writer.WriteWhitespace("\r\n" + new string(' ', 15));
 			writer.WriteElementString("imageUrl", ImageUrl != null ? ImageUrl : "");
 			writer.WriteWhitespace("\r\n" + new string(' ', 15));
-			writer.WriteElementString("updatePlan", UpdatePlan.HasValue ? UpdatePlan.Value.ToString() : "");
+			//writer.WriteElementString("updatePlan", UpdatePlan.HasValue ? UpdatePlan.Value.ToString() : "");
+			writer.WriteStartElement("updatePlan");
+			writer.WriteWhitespace("\r\n" + new string(' ', 18));
+			writer.WriteElementString("time", UpdatePlan.Item1.ToString());
+			writer.WriteWhitespace("\r\n" + new string(' ', 18));
+			writer.WriteElementString("frequency", UpdatePlan.Item2.ToString());
+			writer.WriteWhitespace("\r\n" + new string(' ', 15));
+			writer.WriteEndElement();
+			writer.WriteWhitespace("\r\n" + new string(' ', 15));
+			writer.WriteElementString("lastChecked", LastChecked != null ? LastChecked.ToString() : "");
 			writer.WriteWhitespace("\r\n" + new string(' ', 15));
 			writer.WriteStartElement("xml");
 			string feedPath = Directory.CreateDirectory(Config.AppPath + $"\\{Config.FeedGroups.Find(group=>group.Feeds.Contains(this)).GetFolderName()}").FullName;
@@ -185,15 +204,29 @@ namespace FeedsSigma
 			//output.Write(writer.ToString());
 		}
 		public string GetFileName() { return $"Feed{Id}"; }
+		public override string ToString()
+		{
+			return $"#{this.Id.ToString()}.{this.Name}";
+		}
 	}
 	public class FeedGroup
 	{
+		
 		public int Id { get; protected set; }
 		public string Name { get; set; }
 		//public int Weight { get; set; }
-		public List<Feed> Feeds { get; set; }
+		public FeedList Feeds { get; set; }
 
-		public FeedGroup(int id) { Id = id; }
+		public FeedGroup(int id)
+		{
+			Id = id;
+			Feeds = new FeedList();
+			this.Feeds.FeedAdded += AddFeedToGroup;
+		}
+		private void AddFeedToGroup(object sender, FeedList.FeedAddedEventArgs args)
+		{
+			args.AddedFeed.Group = this;
+		}
 		public void Serialize(XmlWriter writer)
 		{
 			writer.WriteStartElement("group");
@@ -221,11 +254,34 @@ namespace FeedsSigma
 			//}
 		}
 		public string GetFolderName() { return $"Group{Id}"; }
+		public override string ToString()
+		{
+			return $"#{Id}.{Name}";
+		}
+	}
+	public class FeedList : List<Feed>
+	{
+		public class FeedAddedEventArgs : EventArgs
+		{
+			public Feed AddedFeed;
+			public FeedAddedEventArgs(ref Feed feed)
+			{
+				AddedFeed = feed;
+			}
+		}
+		public delegate void FeedAddedEventHandler(object sender, FeedAddedEventArgs args);
+		public FeedAddedEventHandler FeedAdded;
+		public new void Add(Feed feed)
+		{
+			base.Add(feed);
+			FeedAdded?.Invoke(this, new FeedAddedEventArgs(ref feed));
+
+		}
 	}
 
 	public class RssFeed : Feed
 	{
-		public RssFeed(int id, string content) : base(id, content)
+		public RssFeed(int id, string content, string checkedTime = null) : base(id, content, checkedTime)
 		{
 		}
 		protected override void ExtractFeedInfo()
@@ -251,11 +307,12 @@ namespace FeedsSigma
 				channel.Element("description"),
 				channel.Element("generator"),
 				//channel.Element("image"),
-				channel.Element("lastBuildDate"),
+				//channel.Element("lastBuildDate"),
 			};
 			//conditional assignment to feed properties
 			XElement authorElement = channel.Element("author"),
-				imageElement = channel.Element("image");
+				imageElement = channel.Element("image"),
+				dateElement = channel.Element("lastBuildDate");
 			if (authorElement != null)
 			{
 				if (authorElement.HasElements)
@@ -268,13 +325,18 @@ namespace FeedsSigma
 				ImageUrl = imageElement.Element("url").Value;
 
 			}
+			if (dateElement != null)
+			{
+				FeedDetails.Add("LastBuildDate", DateTime.Parse(dateElement.Value).ToString());
+			}
 			foreach (var el in xes)
 			{
 				if (el != null)
 				{
 					string val = el.Value;
 					if (el.Attribute("type") != null && el.Attribute("type").Value == "html")
-						val = Utilities.UnescapeHtmlString(val);
+						//val = Utilities.UnescapeHtmlString(val);
+						val = WebUtility.HtmlDecode(val);
 					FeedDetails.Add(
 						char.ToUpper(el.Name.LocalName.ElementAt(0)) + el.Name.LocalName.Substring(1)
 						, val
@@ -303,7 +365,8 @@ namespace FeedsSigma
 					{
 						string val = el.Value;
 						if (el.Attribute("type") != null && el.Attribute("type").Value == "html")
-							val = Utilities.UnescapeHtmlString(val);
+							//val = Utilities.UnescapeHtmlString(val);
+							val = WebUtility.HtmlDecode(val);
 						content.Add(
 							char.ToUpper(el.Name.LocalName.ElementAt(0)) + el.Name.LocalName.Substring(1)
 							, val
@@ -331,7 +394,7 @@ namespace FeedsSigma
 	public class AtomFeed : Feed
 	{
 
-		public AtomFeed(int id, string content) : base(id, content)
+		public AtomFeed(int id, string content, string checkedTime = null) : base(id, content, checkedTime)
 		{
 		}
 		protected override void ExtractFeedInfo()
@@ -363,11 +426,12 @@ namespace FeedsSigma
 				feed.Element(XName.Get("subtitle", xmlns.NamespaceName)),
 				feed.Element(XName.Get("generator", xmlns.NamespaceName)),
 				feed.Element(XName.Get("id", xmlns.NamespaceName)),
-				feed.Element(XName.Get("updated", xmlns.NamespaceName)),
+				//feed.Element(XName.Get("updated", xmlns.NamespaceName)),
 			};
 			//conditional assignment to feed properties
 			XElement authorElement = feed.Element(XName.Get("author", xmlns.NamespaceName)),
-				logoElement = feed.Element(XName.Get("logo", xmlns.NamespaceName));
+				logoElement = feed.Element(XName.Get("logo", xmlns.NamespaceName)),
+				dateElement = feed.Element(XName.Get("updated", xmlns.NamespaceName));
 
 			if (authorElement != null)
 			{
@@ -381,13 +445,18 @@ namespace FeedsSigma
 				ImageUrl = logoElement.Element(XName.Get("url", xmlns.NamespaceName)).Value;
 
 			}
+			if (dateElement != null)
+			{
+				FeedDetails.Add("Updated", DateTime.Parse(dateElement.Value).ToString());
+			}
 			foreach (var el in xes)
 			{
 				if (el != null)
 				{
 					string val = el.Value;
 					if (el.Attribute("type") != null && el.Attribute("type").Value == "html")
-						val = Utilities.UnescapeHtmlString(val);
+						//val = Utilities.UnescapeHtmlString(val);
+						val = WebUtility.HtmlDecode(val);
 					FeedDetails.Add(
 						char.ToUpper(el.Name.LocalName.ElementAt(0)) + el.Name.LocalName.Substring(1)
 						, val
@@ -419,8 +488,11 @@ namespace FeedsSigma
 					if (el != null)
 					{
 						string val = el.Value;
-						if (el.Attribute("type") != null && el.Attribute("type").Value == "html")
-							val = Utilities.UnescapeHtmlString(val);
+						if (el.Name.LocalName == "updated")
+							val = DateTime.Parse(val).ToString();
+						else if (el.Attribute("type") != null && el.Attribute("type").Value == "html")
+							//val = Utilities.UnescapeHtmlString(val);
+							val = WebUtility.HtmlDecode(val);
 						content.Add(
 							char.ToUpper(el.Name.LocalName.ElementAt(0)) + el.Name.LocalName.Substring(1)
 							, val

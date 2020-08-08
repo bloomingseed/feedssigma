@@ -1,13 +1,8 @@
 ﻿html, body {
-	height: 100%;
-	background-color: silver;
 	margin: 0;
 }
 
 #welcome-wrapper {
-	width: 80%;
-	height: 100%;
-	background-color: white;
 	padding: 12px;
 	margin: 0 auto;
 }
@@ -33,7 +28,7 @@
 }
 
 #feed-items {
-	list-style-type: decimal;
+/*	list-style-type: decimal;*/
 	height: 100%;
 }
 

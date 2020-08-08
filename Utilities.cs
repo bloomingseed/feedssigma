@@ -13,7 +13,7 @@ namespace FeedsSigma
 	{
 		public static string UnescapeHtmlString(string htmlString)
 		{
-			return htmlString.Replace("&quot", "\"")
+			return htmlString.Replace("&quot;", "\"")
 				.Replace("&amp;", "&")
 				.Replace("&apos;", "'")
 				.Replace("&lt;", "<")

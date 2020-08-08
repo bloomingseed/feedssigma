@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 
+using System.Net;
+
 namespace FeedsSigma
 {
 	static class Program
@@ -19,18 +21,14 @@ namespace FeedsSigma
 			Application.SetCompatibleTextRenderingDefault(false);
 			try
 			{
-				//Config config = new Config();
 				Config.LoadConfigurations();
-				//MainForm mainForm = new MainForm(config);
-				//mainForm.FormClosing += (sender, args) =>
-				//{
-				//	config = ((MainForm)sender).ExportConfigurations();
-				//};
-				//Application.Run(mainForm);
+				MainForm mainForm = new MainForm();
+				Application.Run(mainForm);
 				Config.SaveConfigurations();
-				//Feed myFeed = new RssFeed(0, File.ReadAllText("cnn.xml"));
+
+
 			}
-			catch(Exception err)
+			catch (Exception err)
 			{
 				MessageBox.Show(err.Message + "\r\n\r\nPlease look for support at the FeedsSigma GitHub page."
 					, "An error has occured", MessageBoxButtons.OK, MessageBoxIcon.Error);

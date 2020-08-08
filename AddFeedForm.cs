@@ -46,18 +46,7 @@ namespace FeedsSigma
 
 		private void button2_Click(object sender, EventArgs e)
 		{
-			//if (!groupsComboBox.AutoCompleteCustomSource.Contains(groupsComboBox.SelectedItem.ToString()))
-			//{
-
-			//}
-			AddGroupForm addGroupForm = new AddGroupForm();
-			var result = addGroupForm.ShowDialog(this);
-			if(result == DialogResult.OK)
-			{
-				//add new group to group list
-				Config.FeedGroups.Add(addGroupForm.FeedGroup);
-				BindComboBoxes();
-			}
+			
 		}
 	}
 }
