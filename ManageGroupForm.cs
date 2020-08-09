@@ -12,31 +12,22 @@ namespace FeedsSigma
 {
 	public partial class ManageGroupForm : Form
 	{
-		//private Feed _feed;
 		private FeedGroup activeGroup;
 		
 		public ManageGroupForm(FeedGroup group = null)
 		{
-			//_feed = feed;
 			activeGroup = group;
 			InitializeComponent();
-			//BindGroups();
 			// bind auto completing
 			this.Load += BindGroups;
 			renameBttn.Click += BindGroups;
 			createBttn.Click += BindGroups;
 			deleteGroupBttn.Click += BindGroups;
 
-			// bind group's feeds in list box
-
 		}
 
-		//private void BindGroups()
 		private void BindGroups(object sender, EventArgs args)
 		{
-			int? prevIndex = null;
-			if (groupsComboBox.Items.Count > 0)
-				prevIndex = groupsComboBox.SelectedIndex;
 			AutoCompleteStringCollection src = new AutoCompleteStringCollection();
 			groupsComboBox.Items.Clear();
 			desGroupComboBox.Items.Clear();
@@ -48,11 +39,13 @@ namespace FeedsSigma
 			}
 			groupsComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
 			groupsComboBox.AutoCompleteMode = AutoCompleteMode.None;
-			//groupsComboBox.SelectedIndex = prevIndex.HasValue ? prevIndex.Value : 0;
-			groupsComboBox.SelectedIndex = prevIndex.HasValue ? prevIndex.Value : 
-											activeGroup !=null?groupsComboBox.Items.IndexOf(activeGroup):0;
-			desGroupComboBox.Items.RemoveAt(groupsComboBox.SelectedIndex);
-			src.RemoveAt(groupsComboBox.SelectedIndex);
+
+			groupsComboBox.SelectedIndex = activeGroup != null ? groupsComboBox.Items.IndexOf(activeGroup) : groupsComboBox.Items.Count - 1;
+			if (groupsComboBox.Items.Count > 0)
+			{
+				desGroupComboBox.Items.RemoveAt(groupsComboBox.SelectedIndex);
+				src.RemoveAt(groupsComboBox.SelectedIndex);
+			}
 
 			renameTextBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
 			renameTextBox.AutoCompleteMode = AutoCompleteMode.Suggest;
@@ -60,6 +53,7 @@ namespace FeedsSigma
 			newGroupTextBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
 			newGroupTextBox.AutoCompleteMode = AutoCompleteMode.Suggest;
 			newGroupTextBox.AutoCompleteCustomSource = src;
+			renameTextBox.Text = activeGroup != null ? activeGroup.Name : "";
 			newGroupTextBox.Text = "";
 			if (src.Count == 0)
 			{
@@ -84,12 +78,7 @@ namespace FeedsSigma
 		{
 			if (groupsComboBox.SelectedIndex >= 0)
 			{
-				//
-				// bind rename text box
-				renameTextBox.Text = (groupsComboBox.SelectedItem as FeedGroup).Name;
-
-				//
-				// bind feeds list box
+				activeGroup = groupsComboBox.SelectedItem as FeedGroup;
 				BindFeedsListBox();
 			}
 		}
@@ -123,18 +112,16 @@ namespace FeedsSigma
 		private void renameBttn_Click(object sender, EventArgs e)
 		{
 			string name = renameTextBox.Text.Trim();
-			//FeedGroup activeGroup = Config.FeedGroups.Find((group) => group.Name == groupsComboBox.SelectedItem.ToString());
-			activeGroup = groupsComboBox.SelectedItem as FeedGroup;
+			FeedGroup group = groupsComboBox.SelectedItem as FeedGroup;
 
 			if (String.IsNullOrEmpty(name) || String.IsNullOrWhiteSpace(name))
 				MessageBox.Show(this, "Group name is empty.", "Rename Group Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			else if (name == activeGroup.Name)
+			else if (name == group.Name)
 				MessageBox.Show(this, "New name is the same as before.", "Rename Group Canceled",MessageBoxButtons.OK,MessageBoxIcon.Information);
 			else
 			{
-				activeGroup.Name = name;
+				group.Name = name;
 				MessageBox.Show(this, "Changed group name to\""+name+"\".","Rename Group Success",MessageBoxButtons.OK,MessageBoxIcon.Information);
-				//BindGroups();
 			}
 			
 		}
@@ -142,11 +129,9 @@ namespace FeedsSigma
 		private void createBttn_Click(object sender, EventArgs e)
 		{
 			string name = newGroupTextBox.Text.Trim();
-			//FeedGroup activeGroup = Config.FeedGroups.Find((group) => group.Name == groupsComboBox.SelectedItem.ToString());
 			try
 			{
 				if (!String.IsNullOrEmpty(name) || !String.IsNullOrWhiteSpace(name)
-					//&& name != activeGroup.Name
 					&& MessageBox.Show(this, "Create a group named \"" + name + "\"?", "Create Group", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
 				{
 					if (Config.FeedGroups.Find(group => group.Name == name) != null
@@ -156,7 +141,6 @@ namespace FeedsSigma
 					newGroup.Name = name;
 					Config.FeedGroups.Add(newGroup);
 					MessageBox.Show(this, "New group \"" + newGroup.ToString() + "\" has been created.", "Create Group Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-					//BindGroups();
 				}
 			}
 			catch(Exception err) { MessageBox.Show(this, err.Message, "Create Group Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
@@ -171,8 +155,6 @@ namespace FeedsSigma
 				if (MessageBox.Show(this, msg, "Move Feeds", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
 				{
 					var from = feedsListBox.SelectedItems;
-					//FeedGroup to = _feed.Group;
-					//FeedGroup to = Config.FeedGroups.Find(group => group.Name == desGroupComboBox.SelectedItem.ToString());
 					FeedGroup to = desGroupComboBox.SelectedItem as FeedGroup;
 					foreach (var feedItem in from)
 					{
@@ -195,7 +177,6 @@ namespace FeedsSigma
 				if (MessageBox.Show(this, msg, "Move Feeds", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
 				{
 					var from = desFeedsListBox.SelectedItems;
-					//FeedGroup to = Config.FeedGroups.Find(group => group.Name == groupsComboBox.SelectedItem.ToString());
 					FeedGroup to = groupsComboBox.SelectedItem as FeedGroup;
 					foreach (var feedItem in from)
 					{
@@ -217,6 +198,7 @@ namespace FeedsSigma
 				FeedGroup group = groupsComboBox.SelectedItem as FeedGroup;
 				group.Feeds.Clear();
 				Config.FeedGroups.Remove(group);
+				activeGroup = null;
 			}
 		}
 	}

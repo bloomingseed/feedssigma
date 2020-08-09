@@ -16,11 +16,9 @@ namespace FeedsSigma
 		public int Id { get; protected set; }
 		public string Name { get; set; }
 		public string Standard { get; protected set; }
-		//public string Xml { get; protected set; }
 		public string Link { get; protected set; }
 		public string ImageUrl { get; protected set; }
 		public Tuple<TimeSpan,int> UpdatePlan { get; set; }
-		//public string LastChecked { get; protected set; }
 		public DateTime LastChecked { get; protected set; }
 		protected XDocument _xdoc { get; set; }
 		public Dictionary<string, string> FeedDetails { get; protected set; }
@@ -44,7 +42,6 @@ namespace FeedsSigma
 			XDocument templ = null, detailsTmpl = null, itemTmpl = null;
 			try
 			{
-				//templ = XDocument.Load(new FileStream("web\\feedLayout.html", FileMode.Open));
 				templ = XDocument.Parse(File.ReadAllText("web\\feedLayout.html"));
 				detailsTmpl = XDocument.Parse(File.ReadAllText("web\\detailsLayout.html"));
 				itemTmpl = XDocument.Parse(File.ReadAllText("web\\itemLayout.html"));
@@ -53,7 +50,9 @@ namespace FeedsSigma
 						feedItemsE = templ.Root.Element("div").Element("ul");
 
 
-
+				// 
+				// manually create image anchor tag
+				//
 				if (ImageUrl != null && Uri.IsWellFormedUriString(ImageUrl, UriKind.Absolute))
 				{
 					detailsTmpl.Root.Element("span").Value = "Logo:";
@@ -69,20 +68,9 @@ namespace FeedsSigma
 						}
 					builder.Append(detailsTmpl.ToString());
 				}
-
-
-				////create anchor for this.Link
-				//detailsTmpl.Root.Element("span").Value = "Link" + ':';
-				//detailsTmpl.Root.Element("p").Value = "";
-				//using (XmlWriter pWriter = detailsTmpl.Root.Element("p").CreateWriter())
-				//{
-				//	pWriter.WriteStartElement("a");
-				//	pWriter.WriteAttributeString("href", Link);
-				//	pWriter.WriteString(Link);
-				//	pWriter.WriteEndElement();
-				//}
-				//builder.Append(detailsTmpl.ToString());
-
+				//
+				// create tags for each details of this feed
+				//
 				foreach (KeyValuePair<string, string> attr in FeedDetails)
 				{
 
@@ -105,10 +93,15 @@ namespace FeedsSigma
 
 					builder.Append(detailsTmpl.ToString());
 				}
+				//
+				// hardcoded; improvable
+				//
 				feedDetailsE.Value = "<h2>Feed details:</h2>"+builder.ToString()+"<hr /><h2>Articles:</h2>";
 				builder.Clear();
 				StringBuilder attrBuilder = new StringBuilder();
+				//
 				// Generate <li>s
+				//
 				foreach (var item in Items)
 				{
 					foreach (KeyValuePair<string, string> attr in item.Value)
@@ -138,7 +131,6 @@ namespace FeedsSigma
 
 					}
 					itemTmpl.Root.Value = WebUtility.HtmlDecode(attrBuilder.ToString());
-					//itemTmpl.
 					attrBuilder.Clear();
 					builder.Append(itemTmpl.ToString());
 					builder.Append("<hr />");
@@ -147,7 +139,6 @@ namespace FeedsSigma
 				builder.Clear();
 			}
 			catch (Exception err) { throw err; }
-			//return Utilities.UnescapeHtmlString(templ.ToString());
 			return WebUtility.HtmlDecode(templ.ToString());
 		}
 		protected abstract void ExtractFeedInfo();
@@ -168,8 +159,6 @@ namespace FeedsSigma
 			}
 			catch (Exception err) { throw err; }
 		}
-		// use `ref` so that we don't have to remove and re-add the feed
-		//public static Feed Refresh(ref Feed feed)
 		public static Feed Refresh(Feed feed)
 		{
 			FeedGroup group = feed.Group;
@@ -177,11 +166,10 @@ namespace FeedsSigma
 			newFeed.Name = feed.Name;
 			newFeed.UpdatePlan = feed.UpdatePlan;
 			newFeed.Group = Config.FeedGroups[Config.FeedGroups.IndexOf(group)];
+
 			Config.FeedGroups[Config.FeedGroups.IndexOf(group)]
 				.Feeds[group.Feeds.IndexOf(feed)] = newFeed;
 
-			//Config.FeedGroups[Config.FeedGroups.IndexOf(group)]
-			//	.Feeds[group.Feeds.IndexOf(feed)].Group = Config.FeedGroups[Config.FeedGroups.IndexOf(group)];
 			return newFeed;
 		}
 		public void Serialize(XmlWriter writer)
@@ -235,7 +223,6 @@ namespace FeedsSigma
 		
 		public int Id { get; protected set; }
 		public string Name { get; set; }
-		//public int Weight { get; set; }
 		public EventList<Feed> Feeds { get; set; }
 
 		public FeedGroup(int id)
@@ -438,7 +425,6 @@ namespace FeedsSigma
 			try
 			{
 				FeedDetails.Add("Title", feed.Element(XName.Get("title", xmlns.NamespaceName)).Value);
-				//Link = feed.Element("link").Value;
 				FeedDetails.Add("Link",
 					(from linkElement in feed.Elements(XName.Get("link", xmlns.NamespaceName))
 					 where linkElement.Attribute("rel").Value == "self"
@@ -487,7 +473,6 @@ namespace FeedsSigma
 				{
 					string val = el.Value;
 					if (el.Attribute("type") != null && el.Attribute("type").Value == "html")
-						//val = Utilities.UnescapeHtmlString(val);
 						val = WebUtility.HtmlDecode(val);
 					FeedDetails.Add(
 						char.ToUpper(el.Name.LocalName.ElementAt(0)) + el.Name.LocalName.Substring(1)
@@ -523,7 +508,6 @@ namespace FeedsSigma
 						if (el.Name.LocalName == "updated")
 							val = DateTime.Parse(val).ToString();
 						else if (el.Attribute("type") != null && el.Attribute("type").Value == "html")
-							//val = Utilities.UnescapeHtmlString(val);
 							val = WebUtility.HtmlDecode(val);
 						content.Add(
 							char.ToUpper(el.Name.LocalName.ElementAt(0)) + el.Name.LocalName.Substring(1)

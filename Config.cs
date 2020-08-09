@@ -21,7 +21,6 @@ namespace FeedsSigma
 
 		public static void SaveConfigurations()
 		{
-			//string AppPath = Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\FeedsSigma").FullName;
 			using (FileStream file = new FileStream(AppPath + "\\config.ini", FileMode.Create))
 			{
 				using (XmlWriter writer = XmlWriter.Create(file))
@@ -31,22 +30,11 @@ namespace FeedsSigma
 					writer.WriteStartElement("root");
 					writer.WriteWhitespace("\r\n"+new string(' ',3));
 
-					//writer.WriteStartElement("lastFeedId");
-					//writer.WriteString(LastFeedId.ToString());
-					//writer.WriteEndElement();
-					//writer.WriteStartElement("lastGroupId");
-					//writer.WriteString(LastGroupId.ToString());
-					//writer.WriteEndElement();
 					writer.WriteStartElement("groups");
 					writer.WriteWhitespace("\r\n" + new string(' ', 6));
 					foreach (FeedGroup group in FeedGroups)
 					{
-							group.Serialize(writer);
-
-							//writer.WriteString(groupWriter.ToString());
-							//writer.WriteString(groupWriter.GetStringBuilder().ToString());
-						//}
-						//group.Serialize(writer);
+						group.Serialize(writer);
 					}
 					writer.WriteWhitespace("\r\n" + new string(' ', 3));
 					writer.WriteEndElement();
@@ -59,13 +47,10 @@ namespace FeedsSigma
 		public static void LoadConfigurations()
 		{
 			FeedGroups = new List<FeedGroup>();
-			
-			//string AppPath = Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\FeedsSigma").FullName;
 			try
 			{
 				if (!File.Exists(AppPath + "\\config.ini"))
 				{
-					//File.Create(AppPath + "\\config.ini");
 					//init feed group
 					Feed devFeed = null;
 					FeedGroup myFeeds = new FeedGroup(++LastGroupId)
@@ -76,7 +61,6 @@ namespace FeedsSigma
 					//feeds path: ~\AppData\Local\FeedsSigma\feeds\{group id}\{feed id}.xml
 					devFeed = Feed.CreateFromUrl("https://github.com/bloomingseed/novelssigma/commits/master.atom"
 						, ++LastFeedId);
-					//myFeeds.Feeds = new FeedList();
 					myFeeds.Feeds.Add(devFeed);
 					FeedGroups.Add(myFeeds);
 				}
@@ -89,15 +73,12 @@ namespace FeedsSigma
 						LastGroupId = int.Parse(group.Element("id").Value);
 						FeedGroup feedGroup = new FeedGroup(LastGroupId);
 						feedGroup.Name = group.Element("name").Value;
-						//feedGroup.Weight = int.Parse(group.Element("weight").Value);
-						//feedGroup.Feeds = new FeedList();
 						foreach (XElement feedElement in group.Descendants("feed"))
 						{
 							LastFeedId = int.Parse(feedElement.Element("id").Value);
 							Feed feed = null;
 							string checkedTime = feedElement.Element("lastChecked").Value;
 							if (feedElement.Element("standard").Value == "rss")
-								//feed = new RssFeed(LastFeedId, feedElement.ToString());
 								feed = new RssFeed(LastFeedId, File.ReadAllText(feedElement.Element("xml").Value), checkedTime);
 							else
 								feed = new AtomFeed(LastFeedId, File.ReadAllText(feedElement.Element("xml").Value), checkedTime);

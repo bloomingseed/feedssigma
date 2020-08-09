@@ -116,10 +116,8 @@
   <ItemGroup>
     <None Include="Properties\trans-logo.png" />
     <None Include="Properties\compose.bmp" />
-    <None Include="Properties\error.bmp" />
     <None Include="Properties\plus.bmp" />
     <None Include="Properties\refresh.bmp" />
-    <None Include="Properties\restore-down.bmp" />
     <None Include="Properties\trash.bmp" />
     <None Include="Properties\close.png" />
     <None Include="Properties\expand.png" />

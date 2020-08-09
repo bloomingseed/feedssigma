@@ -11,14 +11,6 @@ namespace FeedsSigma
 {
 	public static class Utilities
 	{
-		public static string UnescapeHtmlString(string htmlString)
-		{
-			return htmlString.Replace("&quot;", "\"")
-				.Replace("&amp;", "&")
-				.Replace("&apos;", "'")
-				.Replace("&lt;", "<")
-				.Replace("&gt;", ">");
-		}
 		public static string GetStandard(string content)
 		{
 			XDocument xdoc = XDocument.Parse(content);
