@@ -20,10 +20,19 @@ namespace FeedsSigma
 			//_feed = feed;
 			activeGroup = group;
 			InitializeComponent();
-			BindGroups();
+			//BindGroups();
+			// bind auto completing
+			this.Load += BindGroups;
+			renameBttn.Click += BindGroups;
+			createBttn.Click += BindGroups;
+			deleteGroupBttn.Click += BindGroups;
+
+			// bind group's feeds in list box
+
 		}
 
-		private void BindGroups()
+		//private void BindGroups()
+		private void BindGroups(object sender, EventArgs args)
 		{
 			int? prevIndex = null;
 			if (groupsComboBox.Items.Count > 0)
@@ -125,7 +134,7 @@ namespace FeedsSigma
 			{
 				activeGroup.Name = name;
 				MessageBox.Show(this, "Changed group name to\""+name+"\".","Rename Group Success",MessageBoxButtons.OK,MessageBoxIcon.Information);
-				BindGroups();
+				//BindGroups();
 			}
 			
 		}
@@ -147,15 +156,10 @@ namespace FeedsSigma
 					newGroup.Name = name;
 					Config.FeedGroups.Add(newGroup);
 					MessageBox.Show(this, "New group \"" + newGroup.ToString() + "\" has been created.", "Create Group Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-					BindGroups();
+					//BindGroups();
 				}
 			}
 			catch(Exception err) { MessageBox.Show(this, err.Message, "Create Group Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
-		}
-
-		private void WarnNamingConflict()
-		{
-
 		}
 
 		private void forwardBttn_Click(object sender, EventArgs e)
@@ -205,5 +209,15 @@ namespace FeedsSigma
 			}
 		}
 
+		private void deleteGroupBttn_Click(object sender, EventArgs e)
+		{
+			if (groupsComboBox.SelectedIndex >= 0
+				&& MessageBox.Show(this,"Deleting a whole group will also delete all of its feeds.\r\nDo you want to continue?","Delete Group Warning",MessageBoxButtons.YesNo,MessageBoxIcon.Warning) == DialogResult.Yes)
+			{
+				FeedGroup group = groupsComboBox.SelectedItem as FeedGroup;
+				group.Feeds.Clear();
+				Config.FeedGroups.Remove(group);
+			}
+		}
 	}
 }

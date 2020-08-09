@@ -48,6 +48,7 @@
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
 			this.forwardBttn = new System.Windows.Forms.Button();
 			this.backwardBttn = new System.Windows.Forms.Button();
+			this.deleteGroupBttn = new System.Windows.Forms.Button();
 			this.groupBox2.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			this.groupBox3.SuspendLayout();
@@ -222,6 +223,7 @@
 			// 
 			// groupBox3
 			// 
+			this.groupBox3.Controls.Add(this.deleteGroupBttn);
 			this.groupBox3.Controls.Add(this.groupsComboBox);
 			this.groupBox3.Controls.Add(this.label2);
 			this.groupBox3.Controls.Add(this.label4);
@@ -255,6 +257,16 @@
 			this.backwardBttn.Text = "<";
 			this.backwardBttn.UseVisualStyleBackColor = true;
 			this.backwardBttn.Click += new System.EventHandler(this.backwardBttn_Click);
+			// 
+			// deleteGroupBttn
+			// 
+			this.deleteGroupBttn.Location = new System.Drawing.Point(162, 81);
+			this.deleteGroupBttn.Name = "deleteGroupBttn";
+			this.deleteGroupBttn.Size = new System.Drawing.Size(75, 23);
+			this.deleteGroupBttn.TabIndex = 13;
+			this.deleteGroupBttn.Text = "Delete";
+			this.deleteGroupBttn.UseVisualStyleBackColor = true;
+			this.deleteGroupBttn.Click += new System.EventHandler(this.deleteGroupBttn_Click);
 			// 
 			// ManageGroupForm
 			// 
@@ -307,5 +319,6 @@
 		private System.Windows.Forms.GroupBox groupBox3;
 		private System.Windows.Forms.Button forwardBttn;
 		private System.Windows.Forms.Button backwardBttn;
+		private System.Windows.Forms.Button deleteGroupBttn;
 	}
 }
