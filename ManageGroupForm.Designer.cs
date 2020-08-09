@@ -46,9 +46,9 @@
 			this.label6 = new System.Windows.Forms.Label();
 			this.desFeedsListBox = new System.Windows.Forms.ListBox();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
+			this.deleteGroupBttn = new System.Windows.Forms.Button();
 			this.forwardBttn = new System.Windows.Forms.Button();
 			this.backwardBttn = new System.Windows.Forms.Button();
-			this.deleteGroupBttn = new System.Windows.Forms.Button();
 			this.groupBox2.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			this.groupBox3.SuspendLayout();
@@ -60,7 +60,7 @@
 			this.label1.Location = new System.Drawing.Point(22, 25);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(52, 17);
-			this.label1.TabIndex = 0;
+			this.label1.TabIndex = 5;
 			this.label1.Text = "Group:";
 			// 
 			// groupsComboBox
@@ -70,7 +70,7 @@
 			this.groupsComboBox.Location = new System.Drawing.Point(110, 22);
 			this.groupsComboBox.Name = "groupsComboBox";
 			this.groupsComboBox.Size = new System.Drawing.Size(208, 24);
-			this.groupsComboBox.TabIndex = 1;
+			this.groupsComboBox.TabIndex = 0;
 			this.groupsComboBox.SelectedIndexChanged += new System.EventHandler(this.groupsComboBox_SelectedIndexChanged);
 			// 
 			// renameTextBox
@@ -78,14 +78,14 @@
 			this.renameTextBox.Location = new System.Drawing.Point(110, 52);
 			this.renameTextBox.Name = "renameTextBox";
 			this.renameTextBox.Size = new System.Drawing.Size(208, 23);
-			this.renameTextBox.TabIndex = 2;
+			this.renameTextBox.TabIndex = 1;
 			// 
 			// renameBttn
 			// 
 			this.renameBttn.Location = new System.Drawing.Point(243, 81);
 			this.renameBttn.Name = "renameBttn";
 			this.renameBttn.Size = new System.Drawing.Size(75, 23);
-			this.renameBttn.TabIndex = 3;
+			this.renameBttn.TabIndex = 2;
 			this.renameBttn.Text = "Rename";
 			this.renameBttn.UseVisualStyleBackColor = true;
 			this.renameBttn.Click += new System.EventHandler(this.renameBttn_Click);
@@ -96,7 +96,7 @@
 			this.label2.Location = new System.Drawing.Point(22, 55);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(65, 17);
-			this.label2.TabIndex = 4;
+			this.label2.TabIndex = 6;
 			this.label2.Text = "Rename:";
 			// 
 			// createBttn
@@ -104,7 +104,7 @@
 			this.createBttn.Location = new System.Drawing.Point(234, 51);
 			this.createBttn.Name = "createBttn";
 			this.createBttn.Size = new System.Drawing.Size(75, 23);
-			this.createBttn.TabIndex = 5;
+			this.createBttn.TabIndex = 1;
 			this.createBttn.Text = "Create";
 			this.createBttn.UseVisualStyleBackColor = true;
 			this.createBttn.Click += new System.EventHandler(this.createBttn_Click);
@@ -114,7 +114,7 @@
 			this.closeBttn.Location = new System.Drawing.Point(620, 288);
 			this.closeBttn.Name = "closeBttn";
 			this.closeBttn.Size = new System.Drawing.Size(75, 23);
-			this.closeBttn.TabIndex = 6;
+			this.closeBttn.TabIndex = 5;
 			this.closeBttn.Text = "Close";
 			this.closeBttn.UseVisualStyleBackColor = true;
 			this.closeBttn.Click += new System.EventHandler(this.closeBttn_Click);
@@ -125,7 +125,7 @@
 			this.label3.Location = new System.Drawing.Point(12, 25);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(83, 17);
-			this.label3.TabIndex = 7;
+			this.label3.TabIndex = 2;
 			this.label3.Text = "New Group:";
 			// 
 			// newGroupTextBox
@@ -133,7 +133,7 @@
 			this.newGroupTextBox.Location = new System.Drawing.Point(101, 22);
 			this.newGroupTextBox.Name = "newGroupTextBox";
 			this.newGroupTextBox.Size = new System.Drawing.Size(208, 23);
-			this.newGroupTextBox.TabIndex = 8;
+			this.newGroupTextBox.TabIndex = 0;
 			// 
 			// groupBox2
 			// 
@@ -143,7 +143,7 @@
 			this.groupBox2.Location = new System.Drawing.Point(386, 12);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Size = new System.Drawing.Size(320, 85);
-			this.groupBox2.TabIndex = 10;
+			this.groupBox2.TabIndex = 1;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Create Group";
 			// 
@@ -157,7 +157,7 @@
 			this.feedsListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
 			this.feedsListBox.Size = new System.Drawing.Size(208, 116);
 			this.feedsListBox.Sorted = true;
-			this.feedsListBox.TabIndex = 11;
+			this.feedsListBox.TabIndex = 4;
 			// 
 			// label4
 			// 
@@ -165,7 +165,7 @@
 			this.label4.Location = new System.Drawing.Point(22, 142);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(51, 17);
-			this.label4.TabIndex = 12;
+			this.label4.TabIndex = 7;
 			this.label4.Text = "Feeds:";
 			// 
 			// desGroupComboBox
@@ -175,7 +175,7 @@
 			this.desGroupComboBox.Location = new System.Drawing.Point(100, 22);
 			this.desGroupComboBox.Name = "desGroupComboBox";
 			this.desGroupComboBox.Size = new System.Drawing.Size(208, 24);
-			this.desGroupComboBox.TabIndex = 14;
+			this.desGroupComboBox.TabIndex = 0;
 			this.desGroupComboBox.SelectedIndexChanged += new System.EventHandler(this.desGroupComboBox_SelectedIndexChanged);
 			// 
 			// label5
@@ -184,7 +184,7 @@
 			this.label5.Location = new System.Drawing.Point(17, 25);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(52, 17);
-			this.label5.TabIndex = 13;
+			this.label5.TabIndex = 2;
 			this.label5.Text = "Group:";
 			// 
 			// groupBox1
@@ -196,7 +196,7 @@
 			this.groupBox1.Location = new System.Drawing.Point(387, 103);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Size = new System.Drawing.Size(319, 179);
-			this.groupBox1.TabIndex = 15;
+			this.groupBox1.TabIndex = 2;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Move Feeds";
 			// 
@@ -206,7 +206,7 @@
 			this.label6.Location = new System.Drawing.Point(17, 50);
 			this.label6.Name = "label6";
 			this.label6.Size = new System.Drawing.Size(51, 17);
-			this.label6.TabIndex = 17;
+			this.label6.TabIndex = 3;
 			this.label6.Text = "Feeds:";
 			// 
 			// desFeedsListBox
@@ -219,7 +219,7 @@
 			this.desFeedsListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
 			this.desFeedsListBox.Size = new System.Drawing.Size(208, 116);
 			this.desFeedsListBox.Sorted = true;
-			this.desFeedsListBox.TabIndex = 16;
+			this.desFeedsListBox.TabIndex = 1;
 			// 
 			// groupBox3
 			// 
@@ -234,16 +234,26 @@
 			this.groupBox3.Location = new System.Drawing.Point(12, 12);
 			this.groupBox3.Name = "groupBox3";
 			this.groupBox3.Size = new System.Drawing.Size(325, 270);
-			this.groupBox3.TabIndex = 16;
+			this.groupBox3.TabIndex = 0;
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "Group Info";
+			// 
+			// deleteGroupBttn
+			// 
+			this.deleteGroupBttn.Location = new System.Drawing.Point(162, 81);
+			this.deleteGroupBttn.Name = "deleteGroupBttn";
+			this.deleteGroupBttn.Size = new System.Drawing.Size(75, 23);
+			this.deleteGroupBttn.TabIndex = 3;
+			this.deleteGroupBttn.Text = "Delete";
+			this.deleteGroupBttn.UseVisualStyleBackColor = true;
+			this.deleteGroupBttn.Click += new System.EventHandler(this.deleteGroupBttn_Click);
 			// 
 			// forwardBttn
 			// 
 			this.forwardBttn.Location = new System.Drawing.Point(343, 179);
 			this.forwardBttn.Name = "forwardBttn";
 			this.forwardBttn.Size = new System.Drawing.Size(38, 23);
-			this.forwardBttn.TabIndex = 17;
+			this.forwardBttn.TabIndex = 3;
 			this.forwardBttn.Text = ">";
 			this.forwardBttn.UseVisualStyleBackColor = true;
 			this.forwardBttn.Click += new System.EventHandler(this.forwardBttn_Click);
@@ -253,20 +263,10 @@
 			this.backwardBttn.Location = new System.Drawing.Point(343, 232);
 			this.backwardBttn.Name = "backwardBttn";
 			this.backwardBttn.Size = new System.Drawing.Size(38, 23);
-			this.backwardBttn.TabIndex = 18;
+			this.backwardBttn.TabIndex = 4;
 			this.backwardBttn.Text = "<";
 			this.backwardBttn.UseVisualStyleBackColor = true;
 			this.backwardBttn.Click += new System.EventHandler(this.backwardBttn_Click);
-			// 
-			// deleteGroupBttn
-			// 
-			this.deleteGroupBttn.Location = new System.Drawing.Point(162, 81);
-			this.deleteGroupBttn.Name = "deleteGroupBttn";
-			this.deleteGroupBttn.Size = new System.Drawing.Size(75, 23);
-			this.deleteGroupBttn.TabIndex = 13;
-			this.deleteGroupBttn.Text = "Delete";
-			this.deleteGroupBttn.UseVisualStyleBackColor = true;
-			this.deleteGroupBttn.Click += new System.EventHandler(this.deleteGroupBttn_Click);
 			// 
 			// ManageGroupForm
 			// 

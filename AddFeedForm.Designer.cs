@@ -44,14 +44,14 @@
 			this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(76, 17);
-			this.label1.TabIndex = 0;
+			this.label1.TabIndex = 4;
 			this.label1.Text = "Feed URL:";
 			// 
 			// checkBttn
 			// 
 			this.checkBttn.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.checkBttn.Location = new System.Drawing.Point(697, 17);
-			this.checkBttn.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.checkBttn.Margin = new System.Windows.Forms.Padding(4);
 			this.checkBttn.Name = "checkBttn";
 			this.checkBttn.Size = new System.Drawing.Size(100, 28);
 			this.checkBttn.TabIndex = 1;
@@ -63,20 +63,20 @@
 			// 
 			this.urlTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.urlTextBox.Location = new System.Drawing.Point(100, 18);
-			this.urlTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.urlTextBox.Margin = new System.Windows.Forms.Padding(4);
 			this.urlTextBox.Name = "urlTextBox";
 			this.urlTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
 			this.urlTextBox.Size = new System.Drawing.Size(589, 23);
-			this.urlTextBox.TabIndex = 2;
+			this.urlTextBox.TabIndex = 0;
 			// 
 			// cancelBttn
 			// 
 			this.cancelBttn.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.cancelBttn.Location = new System.Drawing.Point(697, 64);
-			this.cancelBttn.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.cancelBttn.Margin = new System.Windows.Forms.Padding(4);
 			this.cancelBttn.Name = "cancelBttn";
 			this.cancelBttn.Size = new System.Drawing.Size(100, 28);
-			this.cancelBttn.TabIndex = 11;
+			this.cancelBttn.TabIndex = 3;
 			this.cancelBttn.Text = "Cancel";
 			this.cancelBttn.UseVisualStyleBackColor = true;
 			this.cancelBttn.Click += new System.EventHandler(this.cancelBttn_Click);
@@ -85,10 +85,10 @@
 			// 
 			this.addBttn.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.addBttn.Location = new System.Drawing.Point(589, 64);
-			this.addBttn.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.addBttn.Margin = new System.Windows.Forms.Padding(4);
 			this.addBttn.Name = "addBttn";
 			this.addBttn.Size = new System.Drawing.Size(100, 28);
-			this.addBttn.TabIndex = 12;
+			this.addBttn.TabIndex = 2;
 			this.addBttn.Text = "Add";
 			this.addBttn.UseVisualStyleBackColor = true;
 			this.addBttn.Click += new System.EventHandler(this.addBttn_Click);
@@ -99,10 +99,10 @@
 			this.openEditDialogCheckBox.Checked = true;
 			this.openEditDialogCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.openEditDialogCheckBox.Location = new System.Drawing.Point(386, 69);
-			this.openEditDialogCheckBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.openEditDialogCheckBox.Margin = new System.Windows.Forms.Padding(4);
 			this.openEditDialogCheckBox.Name = "openEditDialogCheckBox";
 			this.openEditDialogCheckBox.Size = new System.Drawing.Size(195, 21);
-			this.openEditDialogCheckBox.TabIndex = 13;
+			this.openEditDialogCheckBox.TabIndex = 5;
 			this.openEditDialogCheckBox.Text = "Open Edit dialog afterward";
 			this.openEditDialogCheckBox.UseVisualStyleBackColor = true;
 			// 
@@ -119,7 +119,7 @@
 			this.Controls.Add(this.label1);
 			this.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-			this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.Margin = new System.Windows.Forms.Padding(4);
 			this.Name = "AddFeedForm";
 			this.ShowIcon = false;
 			this.ShowInTaskbar = false;

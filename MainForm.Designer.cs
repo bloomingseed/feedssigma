@@ -179,7 +179,7 @@
 			this.windowToolStrip.Location = new System.Drawing.Point(0, 0);
 			this.windowToolStrip.Name = "windowToolStrip";
 			this.windowToolStrip.Size = new System.Drawing.Size(800, 51);
-			this.windowToolStrip.TabIndex = 6;
+			this.windowToolStrip.TabIndex = 2;
 			this.windowToolStrip.Text = "windowToolStrip";
 			this.windowToolStrip.MouseDown += new System.Windows.Forms.MouseEventHandler(this.label1_MouseDown);
 			this.windowToolStrip.MouseMove += new System.Windows.Forms.MouseEventHandler(this.label1_MouseMove);
@@ -271,7 +271,7 @@
 			this.splitContainer1.Panel2.Controls.Add(this.webBrowser1);
 			this.splitContainer1.Size = new System.Drawing.Size(800, 495);
 			this.splitContainer1.SplitterDistance = 246;
-			this.splitContainer1.TabIndex = 7;
+			this.splitContainer1.TabIndex = 0;
 			// 
 			// listView1
 			// 

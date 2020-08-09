@@ -54,15 +54,24 @@ namespace FeedsSigma
 			{
 				if (NewFeed == null)
 				{
-					try
+					CheckUrl();
+				}
+				while(Config.FeedGroups.Count==0)
+				{
+					var res = MessageBox.Show(this, "You don't have any groups yet.\r\nWould you like to create a new group manually or have a default group \"My Feeds\" created instead?", "Add Feed Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+					if (res == DialogResult.Yes)
 					{
-						CheckUrl();
+						FeedGroup feedGroup = new FeedGroup(++Config.LastGroupId);
+						feedGroup.Name = "My Feeds";
+						Config.FeedGroups.Add(feedGroup);
 					}
-					catch(Exception err)
+					else if (res == DialogResult.No)
 					{
-						MessageBox.Show(this, err.Message, "URL Check Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-						throw err;
+						ManageGroupForm manageGroupForm = new ManageGroupForm();
+						manageGroupForm.ShowDialog(this);
 					}
+					else
+						throw new Exception("You need to have at least 1 group to add your feed to.");
 				}
 				Config.FeedGroups[0].Feeds.Add(NewFeed);
 				openEditDialog = openEditDialogCheckBox.Checked;
@@ -72,6 +81,7 @@ namespace FeedsSigma
 			catch(Exception err)
 			{
 				MessageBox.Show(this, err.Message, "Add Feed Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				NewFeed = null;
 			}
 		}
 
