@@ -173,6 +173,7 @@
 			// 
 			// groupNameComboBox
 			// 
+			this.groupNameComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.groupNameComboBox.FormattingEnabled = true;
 			this.groupNameComboBox.Location = new System.Drawing.Point(113, 65);
 			this.groupNameComboBox.Name = "groupNameComboBox";
@@ -202,6 +203,7 @@
 			this.Margin = new System.Windows.Forms.Padding(4);
 			this.Name = "EditFeedForm";
 			this.ShowIcon = false;
+			this.ShowInTaskbar = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			((System.ComponentModel.ISupportInitialize)(this.timeValueNumericBox)).EndInit();
 			this.groupBox1.ResumeLayout(false);

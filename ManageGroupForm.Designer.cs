@@ -272,6 +272,7 @@
 			this.Margin = new System.Windows.Forms.Padding(4);
 			this.Name = "ManageGroupForm";
 			this.ShowIcon = false;
+			this.ShowInTaskbar = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Manage Groups";
 			this.groupBox2.ResumeLayout(false);

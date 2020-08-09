@@ -41,9 +41,9 @@ namespace FeedsSigma
 			groupsComboBox.AutoCompleteMode = AutoCompleteMode.None;
 			//groupsComboBox.SelectedIndex = prevIndex.HasValue ? prevIndex.Value : 0;
 			groupsComboBox.SelectedIndex = prevIndex.HasValue ? prevIndex.Value : 
-											activeGroup !=null?groupsComboBox.FindString(activeGroup.ToString()):0;
-			//desGroupComboBox.Items.RemoveAt(groupsComboBox.SelectedIndex);
-			//src.RemoveAt(groupsComboBox.SelectedIndex);
+											activeGroup !=null?groupsComboBox.Items.IndexOf(activeGroup):0;
+			desGroupComboBox.Items.RemoveAt(groupsComboBox.SelectedIndex);
+			src.RemoveAt(groupsComboBox.SelectedIndex);
 
 			renameTextBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
 			renameTextBox.AutoCompleteMode = AutoCompleteMode.Suggest;
@@ -77,7 +77,7 @@ namespace FeedsSigma
 			{
 				//
 				// bind rename text box
-				renameTextBox.Text = groupsComboBox.SelectedItem.ToString();
+				renameTextBox.Text = (groupsComboBox.SelectedItem as FeedGroup).Name;
 
 				//
 				// bind feeds list box
@@ -90,15 +90,14 @@ namespace FeedsSigma
 			if (groupsComboBox.SelectedIndex >= 0)
 			{
 				feedsListBox.Items.Clear();
-				FeedGroup feedGroup = activeGroup != null ? activeGroup : groupsComboBox.SelectedItem as FeedGroup;
-				foreach (Feed feed in feedGroup.Feeds)
+				foreach (Feed feed in (groupsComboBox.SelectedItem as FeedGroup).Feeds)
 					feedsListBox.Items.Add(feed);
 			}
 		}
 
 		private void desGroupComboBox_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (groupsComboBox.SelectedIndex > 0)
+			if (groupsComboBox.SelectedIndex >= 0)
 			{
 				BindDesFeedsListBox();
 			}
@@ -135,19 +134,29 @@ namespace FeedsSigma
 		{
 			string name = newGroupTextBox.Text.Trim();
 			//FeedGroup activeGroup = Config.FeedGroups.Find((group) => group.Name == groupsComboBox.SelectedItem.ToString());
-			if (!String.IsNullOrEmpty(name) || !String.IsNullOrWhiteSpace(name)
-				//&& name != activeGroup.Name
-				&& MessageBox.Show(this,"Create a group named \""+name+"\"?","Create Group",MessageBoxButtons.YesNo,MessageBoxIcon.Warning) == DialogResult.Yes)
+			try
 			{
-				FeedGroup newGroup = new FeedGroup(++Config.LastGroupId);
-				newGroup.Name = name;
-				Config.FeedGroups.Add(newGroup);
-				MessageBox.Show(this, "New group \"" + name + "\" has been created.","Create Group Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-				BindGroups();
+				if (!String.IsNullOrEmpty(name) || !String.IsNullOrWhiteSpace(name)
+					//&& name != activeGroup.Name
+					&& MessageBox.Show(this, "Create a group named \"" + name + "\"?", "Create Group", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+				{
+					if (Config.FeedGroups.Find(group => group.Name == name) != null
+						&& MessageBox.Show(this, $"The name \"{name}\" has existed.\r\nDo you want to create new group with this name anyway?", "Create Group Name Conflict", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+						throw new Exception("The name \"" + name + "\" has existed. Please choose another name.");
+					FeedGroup newGroup = new FeedGroup(++Config.LastGroupId);
+					newGroup.Name = name;
+					Config.FeedGroups.Add(newGroup);
+					MessageBox.Show(this, "New group \"" + newGroup.ToString() + "\" has been created.", "Create Group Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					BindGroups();
+				}
 			}
+			catch(Exception err) { MessageBox.Show(this, err.Message, "Create Group Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 		}
 
-		
+		private void WarnNamingConflict()
+		{
+
+		}
 
 		private void forwardBttn_Click(object sender, EventArgs e)
 		{

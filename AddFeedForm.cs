@@ -13,40 +13,72 @@ namespace FeedsSigma
 	public partial class AddFeedForm : Form
 	{
 		public Feed NewFeed { get; protected set; }
-		//private Config Config;
-		//public AddFeedForm(Config config)
+		public bool openEditDialog;
 		public AddFeedForm()
 		{
-			//Config = config;
+			openEditDialog = true;
 			InitializeComponent();
-			BindComboBoxes();
 		}
-		private void BindComboBoxes()
+
+		private void checkBttn_Click(object sender, EventArgs e)
 		{
-			AutoCompleteStringCollection groupNames = new AutoCompleteStringCollection(),
-			timeOfDay = new AutoCompleteStringCollection();
-			foreach (var group in Config.FeedGroups)
-				groupNames.Add(group.Name);
-			groupsComboBox.AutoCompleteCustomSource = groupNames;
-			for(int i = 0; i<24; ++i)
+			try
 			{
-				timeOfDay.AddRange(new string[]
-				{
-					$"{((i<10)?"0"+i.ToString():i.ToString())}:00",
-					$"{((i<10)?"0"+i.ToString():i.ToString())}:30"
-				});
+				CheckUrl();
+				MessageBox.Show(this, "URL read fine. Click Add button to add this feed.", "URL Check Succes", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
-			plansComboBox.AutoCompleteCustomSource = timeOfDay;
+			catch(Exception err)
+			{
+				MessageBox.Show(this, err.Message, "URL Check Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+		private void CheckUrl()
+		{
+			Feed tmp = null;
+			try
+			{
+				Uri link = new Uri(urlTextBox.Text);
+				tmp = Feed.CreateFromUrl(link.AbsoluteUri, ++Config.LastFeedId);
+			}
+			catch (Exception err)
+			{
+				NewFeed = null;
+				throw err;
+			}
+			NewFeed = tmp;
 		}
 
-		private void button1_Click(object sender, EventArgs e)
+		private void addBttn_Click(object sender, EventArgs e)
 		{
-
+			try
+			{
+				if (NewFeed == null)
+				{
+					try
+					{
+						CheckUrl();
+					}
+					catch(Exception err)
+					{
+						MessageBox.Show(this, err.Message, "URL Check Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						throw err;
+					}
+				}
+				Config.FeedGroups[0].Feeds.Add(NewFeed);
+				openEditDialog = openEditDialogCheckBox.Checked;
+				this.DialogResult = DialogResult.OK;
+				this.Close();
+			}
+			catch(Exception err)
+			{
+				MessageBox.Show(this, err.Message, "Add Feed Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 
-		private void button2_Click(object sender, EventArgs e)
+		private void cancelBttn_Click(object sender, EventArgs e)
 		{
-			
+			this.DialogResult = DialogResult.Cancel;
+			this.Close();
 		}
 	}
 }

@@ -23,8 +23,16 @@ namespace FeedsSigma
 			{
 				Config.LoadConfigurations();
 				MainForm mainForm = new MainForm();
+				mainForm.FormClosing += (sender, args) => { Config.SaveConfigurations(); };
 				Application.Run(mainForm);
 				Config.SaveConfigurations();
+
+				//TimeSpan t1 = TimeSpan.Parse("14:00:00"),
+				//	t2 = TimeSpan.Parse("0:30:00");
+				//Console.WriteLine(t1.ToString("h':'m':'s"));
+				//Console.WriteLine(t2.ToString("h':'m':'s"));
+				//Console.WriteLine(t2.ToString("h':'m':'s") == "0:30:00");
+				//Console.WriteLine(t2.ToString("h':'m':'s") == "0:30:0");
 
 
 			}

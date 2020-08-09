@@ -90,7 +90,7 @@ namespace FeedsSigma
 						FeedGroup feedGroup = new FeedGroup(LastGroupId);
 						feedGroup.Name = group.Element("name").Value;
 						//feedGroup.Weight = int.Parse(group.Element("weight").Value);
-						feedGroup.Feeds = new FeedList();
+						//feedGroup.Feeds = new FeedList();
 						foreach (XElement feedElement in group.Descendants("feed"))
 						{
 							LastFeedId = int.Parse(feedElement.Element("id").Value);

@@ -56,16 +56,18 @@ namespace FeedsSigma
 
 				if (ImageUrl != null && Uri.IsWellFormedUriString(ImageUrl, UriKind.Absolute))
 				{
-					using (XmlWriter anchorTmpl = XmlWriter.Create(new StringBuilder()))
-					{
-						anchorTmpl.WriteStartElement("a");
-						anchorTmpl.WriteAttributeString("href", Link);
-						anchorTmpl.WriteStartElement("img");
-						anchorTmpl.WriteAttributeString("src", ImageUrl);
-						anchorTmpl.WriteEndElement();
-						anchorTmpl.WriteEndElement();
-						builder.Append(anchorTmpl.ToString());
-					}
+					detailsTmpl.Root.Element("span").Value = "Logo:";
+					detailsTmpl.Root.Element("p").Value = "";
+						using (XmlWriter pWriter = detailsTmpl.Root.Element("p").CreateWriter())
+						{
+							pWriter.WriteStartElement("a");
+							pWriter.WriteAttributeString("href", Link);
+							pWriter.WriteStartElement("img");
+							pWriter.WriteAttributeString("src", ImageUrl);
+							pWriter.WriteEndElement();
+							pWriter.WriteEndElement();
+						}
+					builder.Append(detailsTmpl.ToString());
 				}
 
 
@@ -166,6 +168,22 @@ namespace FeedsSigma
 			}
 			catch (Exception err) { throw err; }
 		}
+		// use `ref` so that we don't have to remove and re-add the feed
+		//public static Feed Refresh(ref Feed feed)
+		public static Feed Refresh(Feed feed)
+		{
+			FeedGroup group = feed.Group;
+			Feed newFeed = Feed.CreateFromUrl(feed.Link, feed.Id);
+			newFeed.Name = feed.Name;
+			newFeed.UpdatePlan = feed.UpdatePlan;
+			newFeed.Group = Config.FeedGroups[Config.FeedGroups.IndexOf(group)];
+			Config.FeedGroups[Config.FeedGroups.IndexOf(group)]
+				.Feeds[group.Feeds.IndexOf(feed)] = newFeed;
+
+			//Config.FeedGroups[Config.FeedGroups.IndexOf(group)]
+			//	.Feeds[group.Feeds.IndexOf(feed)].Group = Config.FeedGroups[Config.FeedGroups.IndexOf(group)];
+			return newFeed;
+		}
 		public void Serialize(XmlWriter writer)
 		{
 			writer.WriteStartElement("feed");
@@ -182,10 +200,13 @@ namespace FeedsSigma
 			writer.WriteWhitespace("\r\n" + new string(' ', 15));
 			//writer.WriteElementString("updatePlan", UpdatePlan.HasValue ? UpdatePlan.Value.ToString() : "");
 			writer.WriteStartElement("updatePlan");
-			writer.WriteWhitespace("\r\n" + new string(' ', 18));
-			writer.WriteElementString("time", UpdatePlan.Item1.ToString());
-			writer.WriteWhitespace("\r\n" + new string(' ', 18));
-			writer.WriteElementString("frequency", UpdatePlan.Item2.ToString());
+			if (UpdatePlan != null)
+			{
+				writer.WriteWhitespace("\r\n" + new string(' ', 18));
+				writer.WriteElementString("time", UpdatePlan.Item1.ToString());
+				writer.WriteWhitespace("\r\n" + new string(' ', 18));
+				writer.WriteElementString("frequency", UpdatePlan.Item2.ToString());
+			}
 			writer.WriteWhitespace("\r\n" + new string(' ', 15));
 			writer.WriteEndElement();
 			writer.WriteWhitespace("\r\n" + new string(' ', 15));
@@ -215,17 +236,22 @@ namespace FeedsSigma
 		public int Id { get; protected set; }
 		public string Name { get; set; }
 		//public int Weight { get; set; }
-		public FeedList Feeds { get; set; }
+		public EventList<Feed> Feeds { get; set; }
 
 		public FeedGroup(int id)
 		{
 			Id = id;
-			Feeds = new FeedList();
-			this.Feeds.FeedAdded += AddFeedToGroup;
+			Feeds = new EventList<Feed>();
+			this.Feeds.ItemAdded += AddFeedToGroup;
+			this.Feeds.ItemRemoved += RemoveFeedFromGroup;
 		}
-		private void AddFeedToGroup(object sender, FeedList.FeedAddedEventArgs args)
+		private void AddFeedToGroup(object sender, EventList<Feed>.ItemChangedEventArgs args)
 		{
-			args.AddedFeed.Group = this;
+			args.Item.Group = this;
+		}
+		private void RemoveFeedFromGroup(object sender, EventList<Feed>.ItemChangedEventArgs args)
+		{
+			args.Item.Group = null;
 		}
 		public void Serialize(XmlWriter writer)
 		{
@@ -259,23 +285,29 @@ namespace FeedsSigma
 			return $"#{Id}.{Name}";
 		}
 	}
-	public class FeedList : List<Feed>
+	public class EventList<T> : List<T>
 	{
-		public class FeedAddedEventArgs : EventArgs
+		public class ItemChangedEventArgs : EventArgs
 		{
-			public Feed AddedFeed;
-			public FeedAddedEventArgs(ref Feed feed)
+			public T Item;
+			public ItemChangedEventArgs(ref T item)
 			{
-				AddedFeed = feed;
+				Item = item;
 			}
 		}
-		public delegate void FeedAddedEventHandler(object sender, FeedAddedEventArgs args);
-		public FeedAddedEventHandler FeedAdded;
-		public new void Add(Feed feed)
+		public delegate void ItemChangedEventHandler(object sender, ItemChangedEventArgs args);
+		public ItemChangedEventHandler ItemAdded;
+		public ItemChangedEventHandler ItemRemoved;
+		public new void Add(T item)
 		{
-			base.Add(feed);
-			FeedAdded?.Invoke(this, new FeedAddedEventArgs(ref feed));
+			base.Add(item);
+			ItemAdded?.Invoke(this, new ItemChangedEventArgs(ref item));
 
+		}
+		public new void Remove(T item)
+		{
+			base.Remove(item);
+			ItemRemoved?.Invoke(this, new ItemChangedEventArgs(ref item));
 		}
 	}
 

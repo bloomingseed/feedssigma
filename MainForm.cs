@@ -16,27 +16,30 @@ namespace FeedsSigma
 {
 	public partial class MainForm : Form
 	{
-		private bool hasUpdate;
+		//private bool hasUpdate;
 		private Point? lastLocation;
 		private Timer timer;
 		private event EventHandler FeedUpdated;
-		private List<ListViewItem> _notifiedItems;
+		private EventList<ListViewItem> _updatedItems;
 		public MainForm()
 		{
-			_notifiedItems = new List<ListViewItem>();
 			InitializeComponent();
+
+			// redraw list view everytime these happen
+			this.Load += BindListView;
+			addFeedBttn.Click += BindListView;
+			deleteFeedBttn.Click += BindListView;
+			manualRefreshBttn.Click += BindListView;
+			editFeedBttn.Click += BindListView;
+			manageGroupsBttn.Click += BindListView;
+
 			//
 			// set up image list for listview items
 			//
 			ImageList imageList = new ImageList();
 			imageList.Images.Add("rss", Resources.rss);
 			imageList.Images.Add("rss_notified", Resources.rss_notified);
-			//imageList.ImageSize = new Size(28, 28);
 			listView1.SmallImageList = imageList;
-			//
-			// bind items to view
-			//
-			BindListView();
 			//
 			// check update every minute
 			//
@@ -53,37 +56,26 @@ namespace FeedsSigma
 			// notify when a feed has new content
 			//
 			FeedUpdated += Notify;
+
+			_updatedItems = new EventList<ListViewItem>();
+			_updatedItems.ItemAdded += NotifyHandler;
+			_updatedItems.ItemRemoved += TurnOffNotifyHandler;
 		}
 
-		private void BindListView()
+		private void BindListView(object sender, EventArgs args)
 		{
-			listView1.Clear();
+			listView1.Items.Clear();
 			listView1.Groups.Clear();
-			listView1.Columns.AddRange(new ColumnHeader[]
-			{
-				new ColumnHeader()
-				{
-					Text="#ID. Name",
-					Width=155
-				},
-				new ColumnHeader()
-				{
-					Text="Last Checked",
-					Width=87
-				}
-			});
 			foreach (FeedGroup feedGroup in Config.FeedGroups)
 			{
 				ListViewGroup viewGroup = new ListViewGroup(feedGroup.ToString());
 				foreach(Feed feed in feedGroup.Feeds)
 				{
 					ListViewItem feedItem = new ListViewItem();
-					//feedItem.Text = feed.Id.ToString();
 					feedItem.Text = feed.ToString();
 					feedItem.ImageKey = "rss";
 					feedItem.Tag = feed;
 					feedItem.SubItems.Add(feed.LastChecked.ToString());
-					feedItem.SubItems.Add("seen");
 					viewGroup.Items.Add(feedItem);
 					listView1.Items.Add(feedItem);
 				}
@@ -98,16 +90,12 @@ namespace FeedsSigma
 		private void CheckFeedUpdate()
 		{
 			DateTime now = DateTime.Now;
-			//foreach (var group in Config.FeedGroups)
-			//	for (int i = 0; i < group.Feeds.Count; ++i) {
 			foreach(ListViewGroup group in listView1.Groups)
 				foreach(ListViewItem feedItem in group.Items)
 				{
 					if (feedItem.Text != "")
 					{
 						Feed iFeed = feedItem.Tag as Feed;
-
-						//if (iFeed.UpdatePlan.HasValue && iFeed.UpdatePlan.Value == now)
 						if (iFeed.UpdatePlan != null &&
 									DateTime.Compare(new DateTime(iFeed.LastChecked.Year, iFeed.LastChecked.Month, iFeed.LastChecked.Day + iFeed.UpdatePlan.Item2,
 																	iFeed.UpdatePlan.Item1.Hours, iFeed.UpdatePlan.Item1.Minutes, 0)
@@ -115,6 +103,8 @@ namespace FeedsSigma
 						{
 							Task.Run(() => { UpdateFeed(feedItem); });
 						}
+						////for debugging only
+						//Task.Run(() => { UpdateFeed(feedItem); });
 					}
 				}
 	}
@@ -125,14 +115,15 @@ namespace FeedsSigma
 			string timeKey = "PubDate";
 			if (feed.Standard == "atom")
 				timeKey = "Updated";
+			//
 			//backup lastest article's pubdate
 			DateTime before = DateTime.Parse(feed.Items.First().Value[timeKey]);
-
-			//reload feed content from the same url
-			feed = Feed.CreateFromUrl(feed.Link, feed.Id);
-
+			feed = Feed.Refresh(feed);
+			//
 			//check if newer article presents
-			if (DateTime.Compare(before, DateTime.Parse(feed.Items.First().Value[timeKey])) < 1)
+			if (DateTime.Compare(before, DateTime.Parse(feed.Items.First().Value[timeKey])) == -1)
+			////for debugging only
+			//if (DateTime.Compare(before, DateTime.Parse(feed.Items.First().Value[timeKey])) == 0)
 			{
 				FeedUpdated.Invoke(feedItem, new EventArgs());
 			}
@@ -141,17 +132,29 @@ namespace FeedsSigma
 		{
 			//change icon
 			ListViewItem feedItem = sender as ListViewItem;
-			notifyIcon1.Icon = Resources.trans_logo_notified;
-			feedItem.SubItems[2].Text = "unseen";
-			feedItem.ImageKey = "rss_notified";
-			_notifiedItems.Add(feedItem);
+			//feedItem.SubItems[2].Text = "unseen";
+			Action action = new Action(() => {
+				//feedItem.SubItems[2].Text = "unseen";
+				//feedItem.ImageKey = "rss_notified";
+				//_notifiedItems.Add(feedItem);
+				_updatedItems.Add(feedItem);
 
-			notifyIcon1.ShowBalloonTip(3000, $"\"{feedItem.Name}\" has new articles.", "Feed Updated",ToolTipIcon.Info);
-			hasUpdate = true;
+				//notifyIcon1.Icon = Resources.trans_logo_notified;
+				//notifyIcon1.ShowBalloonTip(3000, $"\"{feedItem.Text}\" has new articles.", "Feed has been updated", ToolTipIcon.Info);
+			});
+			listView1.Invoke(action);
+			//hasUpdate = true;
 		}
-		private void TryTurnOffNotified()
+		private void NotifyHandler(object sender, EventList<ListViewItem>.ItemChangedEventArgs args)
 		{
-			if (_notifiedItems.Count == 0)
+			args.Item.ImageKey = "rss_notified";
+			notifyIcon1.Icon = Resources.trans_logo_notified;
+			notifyIcon1.ShowBalloonTip(3000, $"\"{args.Item.Text}\" has new articles.", "Feed has been updated", ToolTipIcon.Info);
+		}
+		private void TurnOffNotifyHandler(object sender, EventList<ListViewItem>.ItemChangedEventArgs args)
+		{
+			args.Item.ImageKey = "rss";
+			if ((sender as EventList<ListViewItem>).Count == 0)
 				notifyIcon1.Icon = Resources.trans_logo_icon;
 		}
 		private void MainForm_Load(object sender, System.EventArgs e)
@@ -176,8 +179,8 @@ namespace FeedsSigma
 		{
 			if(this.Visible == false)
 				this.Visible = true;
-			if (hasUpdate)
-				notifyIcon1.Icon = Resources.trans_logo_icon;
+			//if (hasUpdate)
+			//	notifyIcon1.Icon = Resources.trans_logo_icon;
 		}
 
 		private void quitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -191,7 +194,6 @@ namespace FeedsSigma
 			this.Visible = false;
 			notifyIcon1.ShowBalloonTip(3000, "Feeds Sigma is still running", "Right click the Feeds Sigma icon in the system tray and choose to quit to program.", ToolTipIcon.Info);
 			e.Cancel = true;
-
 		}
 		private void closeBttn_Click(object sender, EventArgs e)
 		{
@@ -236,13 +238,6 @@ namespace FeedsSigma
 
 		private void InjectHtmlContent(string content)
 		{
-			//webBrowser1.Navigate("about:blank");
-			//XDocument xFile = XDocument.Load("web\\_layout.html");
-			//xFile.Descendants(XName.Get("body", xFile.Root.Attribute("xmlns").Value)).First().Add
-			//using (XmlWriter writer = xFile.Descendants(XName.Get("body", xFile.Root.Attribute("xmlns").Value)).First().CreateWriter())
-			//{
-
-			//}
 			Action action = new Action(() => webBrowser1.Document.Body.InnerHtml = content);
 			webBrowser1.Invoke(action);
 		}
@@ -251,10 +246,22 @@ namespace FeedsSigma
 		{
 			AddFeedForm form = new AddFeedForm();
 			var res = form.ShowDialog(this);
-			//if(res == DialogResult.OK)
-			//{
-					
-			//}
+			if (res == DialogResult.OK)
+			{
+				try
+				{
+					if (form.openEditDialog)
+					{
+						EditFeedForm editForm = new EditFeedForm(form.NewFeed);
+						editForm.ShowDialog();
+					}
+					MessageBox.Show(this, "New feed created:\r\n" +
+						$"\"{form.NewFeed.ToString()}\"", "Add Feed Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				}
+				catch(Exception err) {
+					MessageBox.Show(this, err.Message, "Edit Feed Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
+			}
 		}
 
 		private void deleteFeedBttn_Click(object sender, EventArgs e)
@@ -285,12 +292,13 @@ namespace FeedsSigma
 			{
 				Feed activeFeed = listView1.SelectedItems[0].Tag as Feed;
 				EditFeedForm form = new EditFeedForm(activeFeed);
-				if (form.ShowDialog(this) == DialogResult.OK)
-				{
-					activeFeed = form._feed;
-					MessageBox.Show("Changes saved.");
-					BindListView();
-				}
+				form.ShowDialog();
+				//if (form.ShowDialog(this) == DialogResult.OK)
+				//{
+				//	//activeFeed = form._feed;
+
+				//	BindListView();
+				//}
 			}
 		}
 		private void manageGroupsBttn_Click(object sender, EventArgs e)
@@ -298,7 +306,6 @@ namespace FeedsSigma
 			FeedGroup group = listView1.SelectedItems.Count > 0 ? (listView1.SelectedItems[0].Tag as Feed).Group : null;
 			ManageGroupForm form = new ManageGroupForm(group);
 			form.ShowDialog(this);
-			BindListView();
 		}
 		//private void listView1_ClientSizeChanged(object sender, EventArgs e)
 		//{
@@ -309,13 +316,15 @@ namespace FeedsSigma
 		{
 			var item = listView1.SelectedItems[0];
 			InjectHtmlContent((item.Tag as Feed).GetHtmlString());
-			if (item.SubItems[2].Text == "unseen")
-			{
-				item.SubItems[2].Text = "seen";
-				item.ImageKey = "rss";
-				_notifiedItems.Remove(item);
-				TryTurnOffNotified();
-			}
+			//if (item.SubItems[2].Text == "unseen")
+			//{
+			//	item.SubItems[2].Text = "seen";
+			//	item.ImageKey = "rss";
+			//	_notifiedItems.Remove(item);
+			//	TryTurnOffNotified();
+			//}
+			if (_updatedItems.Contains(item))
+				_updatedItems.Remove(item);
 		}
 	}
 }
